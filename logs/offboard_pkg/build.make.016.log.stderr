@@ -1,0 +1,85 @@
+In file included from [01m[K/opt/ros/noetic/include/ros/ros.h:40[m[K,
+                 from [01m[K/home/darren/catkin_ws/src/offboard_pkg/src/keyboard_move_node.cpp:7[m[K:
+[01m[K/home/darren/catkin_ws/src/offboard_pkg/src/keyboard_move_node.cpp:[m[K In function ‘[01m[Kint main(int, char**)[m[K’:
+[01m[K/home/darren/catkin_ws/src/offboard_pkg/src/keyboard_move_node.cpp:65:18:[m[K [01;35m[Kwarning: [m[Kformat ‘[01m[K%d[m[K’ expects argument of type ‘[01m[Kint[m[K’, but argument 8 has type ‘[01m[Kgeometry_msgs::Point_<std::allocator<void> >::_x_type[m[K’ {aka ‘[01m[Kdouble[m[K’} [[01;35m[K-Wformat=[m[K]
+   65 |         ROS_INFO([01;35m[K"x: %d, y: %d, z: %d"[m[K, [32m[Kpose.pose.position.x[m[K, pose.pose.position.y, pose.pose.position.z);
+      |                  [01;35m[K^~~~~~~~~~~~~~~~~~~~~[m[K  [32m[K~~~~~~~~~~~~~~~~~~~~[m[K
+      |                                                            [32m[K|[m[K
+      |                                                            [32m[Kgeometry_msgs::Point_<std::allocator<void> >::_x_type {aka double}[m[K
+[01m[K/opt/ros/noetic/include/ros/console.h:351:165:[m[K [01;36m[Knote: [m[Kin definition of macro ‘[01m[KROSCONSOLE_PRINT_AT_LOCATION_WITH_FILTER[m[K’
+  351 |     ::ros::console::print(filter, __rosconsole_define_location__loc.logger_, __rosconsole_define_location__loc.level_, __FILE__, __LINE__, __ROSCONSOLE_FUNCTION__, [01;36m[K__VA_ARGS__[m[K)
+      |                                                                                                                                                                     [01;36m[K^~~~~~~~~~~[m[K
+[01m[K/opt/ros/noetic/include/ros/console.h:390:7:[m[K [01;36m[Knote: [m[Kin expansion of macro ‘[01m[KROSCONSOLE_PRINT_AT_LOCATION[m[K’
+  390 |       [01;36m[KROSCONSOLE_PRINT_AT_LOCATION[m[K(__VA_ARGS__); \
+      |       [01;36m[K^~~~~~~~~~~~~~~~~~~~~~~~~~~~[m[K
+[01m[K/opt/ros/noetic/include/ros/console.h:575:35:[m[K [01;36m[Knote: [m[Kin expansion of macro ‘[01m[KROS_LOG_COND[m[K’
+  575 | #define ROS_LOG(level, name, ...) [01;36m[KROS_LOG_COND[m[K(true, level, name, __VA_ARGS__)
+      |                                   [01;36m[K^~~~~~~~~~~~[m[K
+[01m[K/opt/ros/noetic/include/rosconsole/macros_generated.h:110:23:[m[K [01;36m[Knote: [m[Kin expansion of macro ‘[01m[KROS_LOG[m[K’
+  110 | #define ROS_INFO(...) [01;36m[KROS_LOG[m[K(::ros::console::levels::Info, ROSCONSOLE_DEFAULT_NAME, __VA_ARGS__)
+      |                       [01;36m[K^~~~~~~[m[K
+[01m[K/home/darren/catkin_ws/src/offboard_pkg/src/keyboard_move_node.cpp:65:9:[m[K [01;36m[Knote: [m[Kin expansion of macro ‘[01m[KROS_INFO[m[K’
+   65 |         [01;36m[KROS_INFO[m[K("x: %d, y: %d, z: %d", pose.pose.position.x, pose.pose.position.y, pose.pose.position.z);
+      |         [01;36m[K^~~~~~~~[m[K
+[01m[K/home/darren/catkin_ws/src/offboard_pkg/src/keyboard_move_node.cpp:65:23:[m[K [01;36m[Knote: [m[Kformat string is defined here
+   65 |         ROS_INFO("x: [01;36m[K%d[m[K, y: %d, z: %d", pose.pose.position.x, pose.pose.position.y, pose.pose.position.z);
+      |                      [01;36m[K~^[m[K
+      |                       [01;36m[K|[m[K
+      |                       [01;36m[Kint[m[K
+      |                      [32m[K%f[m[K
+In file included from [01m[K/opt/ros/noetic/include/ros/ros.h:40[m[K,
+                 from [01m[K/home/darren/catkin_ws/src/offboard_pkg/src/keyboard_move_node.cpp:7[m[K:
+[01m[K/home/darren/catkin_ws/src/offboard_pkg/src/keyboard_move_node.cpp:65:18:[m[K [01;35m[Kwarning: [m[Kformat ‘[01m[K%d[m[K’ expects argument of type ‘[01m[Kint[m[K’, but argument 9 has type ‘[01m[Kgeometry_msgs::Point_<std::allocator<void> >::_y_type[m[K’ {aka ‘[01m[Kdouble[m[K’} [[01;35m[K-Wformat=[m[K]
+   65 |         ROS_INFO([01;35m[K"x: %d, y: %d, z: %d"[m[K, pose.pose.position.x, [32m[Kpose.pose.position.y[m[K, pose.pose.position.z);
+      |                  [01;35m[K^~~~~~~~~~~~~~~~~~~~~[m[K                        [32m[K~~~~~~~~~~~~~~~~~~~~[m[K
+      |                                                                                  [32m[K|[m[K
+      |                                                                                  [32m[Kgeometry_msgs::Point_<std::allocator<void> >::_y_type {aka double}[m[K
+[01m[K/opt/ros/noetic/include/ros/console.h:351:165:[m[K [01;36m[Knote: [m[Kin definition of macro ‘[01m[KROSCONSOLE_PRINT_AT_LOCATION_WITH_FILTER[m[K’
+  351 |     ::ros::console::print(filter, __rosconsole_define_location__loc.logger_, __rosconsole_define_location__loc.level_, __FILE__, __LINE__, __ROSCONSOLE_FUNCTION__, [01;36m[K__VA_ARGS__[m[K)
+      |                                                                                                                                                                     [01;36m[K^~~~~~~~~~~[m[K
+[01m[K/opt/ros/noetic/include/ros/console.h:390:7:[m[K [01;36m[Knote: [m[Kin expansion of macro ‘[01m[KROSCONSOLE_PRINT_AT_LOCATION[m[K’
+  390 |       [01;36m[KROSCONSOLE_PRINT_AT_LOCATION[m[K(__VA_ARGS__); \
+      |       [01;36m[K^~~~~~~~~~~~~~~~~~~~~~~~~~~~[m[K
+[01m[K/opt/ros/noetic/include/ros/console.h:575:35:[m[K [01;36m[Knote: [m[Kin expansion of macro ‘[01m[KROS_LOG_COND[m[K’
+  575 | #define ROS_LOG(level, name, ...) [01;36m[KROS_LOG_COND[m[K(true, level, name, __VA_ARGS__)
+      |                                   [01;36m[K^~~~~~~~~~~~[m[K
+[01m[K/opt/ros/noetic/include/rosconsole/macros_generated.h:110:23:[m[K [01;36m[Knote: [m[Kin expansion of macro ‘[01m[KROS_LOG[m[K’
+  110 | #define ROS_INFO(...) [01;36m[KROS_LOG[m[K(::ros::console::levels::Info, ROSCONSOLE_DEFAULT_NAME, __VA_ARGS__)
+      |                       [01;36m[K^~~~~~~[m[K
+[01m[K/home/darren/catkin_ws/src/offboard_pkg/src/keyboard_move_node.cpp:65:9:[m[K [01;36m[Knote: [m[Kin expansion of macro ‘[01m[KROS_INFO[m[K’
+   65 |         [01;36m[KROS_INFO[m[K("x: %d, y: %d, z: %d", pose.pose.position.x, pose.pose.position.y, pose.pose.position.z);
+      |         [01;36m[K^~~~~~~~[m[K
+[01m[K/home/darren/catkin_ws/src/offboard_pkg/src/keyboard_move_node.cpp:65:30:[m[K [01;36m[Knote: [m[Kformat string is defined here
+   65 |         ROS_INFO("x: %d, y: [01;36m[K%d[m[K, z: %d", pose.pose.position.x, pose.pose.position.y, pose.pose.position.z);
+      |                             [01;36m[K~^[m[K
+      |                              [01;36m[K|[m[K
+      |                              [01;36m[Kint[m[K
+      |                             [32m[K%f[m[K
+In file included from [01m[K/opt/ros/noetic/include/ros/ros.h:40[m[K,
+                 from [01m[K/home/darren/catkin_ws/src/offboard_pkg/src/keyboard_move_node.cpp:7[m[K:
+[01m[K/home/darren/catkin_ws/src/offboard_pkg/src/keyboard_move_node.cpp:65:18:[m[K [01;35m[Kwarning: [m[Kformat ‘[01m[K%d[m[K’ expects argument of type ‘[01m[Kint[m[K’, but argument 10 has type ‘[01m[Kgeometry_msgs::Point_<std::allocator<void> >::_z_type[m[K’ {aka ‘[01m[Kdouble[m[K’} [[01;35m[K-Wformat=[m[K]
+   65 |         ROS_INFO([01;35m[K"x: %d, y: %d, z: %d"[m[K, pose.pose.position.x, pose.pose.position.y, [32m[Kpose.pose.position.z[m[K);
+      |                  [01;35m[K^~~~~~~~~~~~~~~~~~~~~[m[K                                              [32m[K~~~~~~~~~~~~~~~~~~~~[m[K
+      |                                                                                                        [32m[K|[m[K
+      |                                                                                                        [32m[Kgeometry_msgs::Point_<std::allocator<void> >::_z_type {aka double}[m[K
+[01m[K/opt/ros/noetic/include/ros/console.h:351:165:[m[K [01;36m[Knote: [m[Kin definition of macro ‘[01m[KROSCONSOLE_PRINT_AT_LOCATION_WITH_FILTER[m[K’
+  351 |     ::ros::console::print(filter, __rosconsole_define_location__loc.logger_, __rosconsole_define_location__loc.level_, __FILE__, __LINE__, __ROSCONSOLE_FUNCTION__, [01;36m[K__VA_ARGS__[m[K)
+      |                                                                                                                                                                     [01;36m[K^~~~~~~~~~~[m[K
+[01m[K/opt/ros/noetic/include/ros/console.h:390:7:[m[K [01;36m[Knote: [m[Kin expansion of macro ‘[01m[KROSCONSOLE_PRINT_AT_LOCATION[m[K’
+  390 |       [01;36m[KROSCONSOLE_PRINT_AT_LOCATION[m[K(__VA_ARGS__); \
+      |       [01;36m[K^~~~~~~~~~~~~~~~~~~~~~~~~~~~[m[K
+[01m[K/opt/ros/noetic/include/ros/console.h:575:35:[m[K [01;36m[Knote: [m[Kin expansion of macro ‘[01m[KROS_LOG_COND[m[K’
+  575 | #define ROS_LOG(level, name, ...) [01;36m[KROS_LOG_COND[m[K(true, level, name, __VA_ARGS__)
+      |                                   [01;36m[K^~~~~~~~~~~~[m[K
+[01m[K/opt/ros/noetic/include/rosconsole/macros_generated.h:110:23:[m[K [01;36m[Knote: [m[Kin expansion of macro ‘[01m[KROS_LOG[m[K’
+  110 | #define ROS_INFO(...) [01;36m[KROS_LOG[m[K(::ros::console::levels::Info, ROSCONSOLE_DEFAULT_NAME, __VA_ARGS__)
+      |                       [01;36m[K^~~~~~~[m[K
+[01m[K/home/darren/catkin_ws/src/offboard_pkg/src/keyboard_move_node.cpp:65:9:[m[K [01;36m[Knote: [m[Kin expansion of macro ‘[01m[KROS_INFO[m[K’
+   65 |         [01;36m[KROS_INFO[m[K("x: %d, y: %d, z: %d", pose.pose.position.x, pose.pose.position.y, pose.pose.position.z);
+      |         [01;36m[K^~~~~~~~[m[K
+[01m[K/home/darren/catkin_ws/src/offboard_pkg/src/keyboard_move_node.cpp:65:37:[m[K [01;36m[Knote: [m[Kformat string is defined here
+   65 |         ROS_INFO("x: %d, y: %d, z: [01;36m[K%d[m[K", pose.pose.position.x, pose.pose.position.y, pose.pose.position.z);
+      |                                    [01;36m[K~^[m[K
+      |                                     [01;36m[K|[m[K
+      |                                     [01;36m[Kint[m[K
+      |                                    [32m[K%f[m[K
