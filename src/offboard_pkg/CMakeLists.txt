@@ -136,7 +136,6 @@ include_directories(
 ## The recommended prefix ensures that target names across packages don't collide
 # add_executable(${PROJECT_NAME}_node src/offboard_pkg_node.cpp)
 add_executable(offboard_node src/offboard_node.cpp)
-add_executable(keyboard_move_node src/keyboard_move_node.cpp)
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
@@ -153,7 +152,7 @@ add_executable(keyboard_move_node src/keyboard_move_node.cpp)
 #   ${catkin_LIBRARIES}
 # )
 target_link_libraries(offboard_node ${catkin_LIBRARIES})
-target_link_libraries(keyboard_move_node ${catkin_LIBRARIES})
+
 
 #############
 ## Install ##

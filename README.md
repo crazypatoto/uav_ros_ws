@@ -24,12 +24,12 @@ cd $ROS_WORKSPACE_DIRECTORY
 source devel/setup.bash
 ```
 
-5. Run offboard control node:
+6. Run offboard control node:
 ```bash
-rosrun offboard_pkg offboard_node
+roslaunch move_uav single_uav.launch 
 ```
 
-6. Run keyboard control node:
+7. Run keyboard control node:
 ```bash
 rosrun offboard_pkg keyboard_move_node 
 ```

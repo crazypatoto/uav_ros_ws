@@ -12,6 +12,9 @@ find_package(catkin REQUIRED COMPONENTS
   mavros_msgs
   roscpp
   std_msgs
+  tf2
+  tf2_ros
+  tf2_geometry_msgs
 )
 
 ## System dependencies are found with CMake's conventions
@@ -136,6 +139,7 @@ include_directories(
 ## The recommended prefix ensures that target names across packages don't collide
 # add_executable(${PROJECT_NAME}_node src/move_uav_node.cpp)
 add_executable(move_uav_node src/move_uav_node.cpp)
+add_executable(keyboard_move_node src/keyboard_move_node.cpp)
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
@@ -152,6 +156,7 @@ add_executable(move_uav_node src/move_uav_node.cpp)
 #   ${catkin_LIBRARIES}
 # )
 target_link_libraries(move_uav_node ${catkin_LIBRARIES})
+target_link_libraries(keyboard_move_node ${catkin_LIBRARIES})
 
 #############
 ## Install ##

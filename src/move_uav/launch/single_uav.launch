@@ -1,0 +1,7 @@
+<?xml version="1.0"?>
+<launch>
+	<!-- UAV0 -->
+	<group ns="uav0">
+		<node name="move_uav_node_0" pkg="move_uav" type="move_uav_node" output="screen" />
+	</group>
+</launch>
