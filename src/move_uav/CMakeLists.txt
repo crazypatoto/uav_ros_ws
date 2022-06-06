@@ -140,6 +140,7 @@ include_directories(
 # add_executable(${PROJECT_NAME}_node src/move_uav_node.cpp)
 add_executable(move_uav_node src/move_uav_node.cpp)
 add_executable(keyboard_move_node src/keyboard_move_node.cpp)
+add_executable(animation_node src/animation_node.cpp)
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
@@ -157,6 +158,7 @@ add_executable(keyboard_move_node src/keyboard_move_node.cpp)
 # )
 target_link_libraries(move_uav_node ${catkin_LIBRARIES})
 target_link_libraries(keyboard_move_node ${catkin_LIBRARIES})
+target_link_libraries(animation_node ${catkin_LIBRARIES})
 
 #############
 ## Install ##

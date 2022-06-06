@@ -9,14 +9,14 @@
 #include <tf2_ros/transform_listener.h>
 #include <tf2_geometry_msgs/tf2_geometry_msgs.h>
 
-#define Z_OFFSET (0.5)
+
 
 bool debug = false;
+bool start_receiving_setpoint = false;
 mavros_msgs::State current_state;
 geometry_msgs::PoseStamped current_pose;
-geometry_msgs::PoseStamped current_set_point;
-geometry_msgs::TransformStamped uav_world_tf;
-int start_flag = 0;
+geometry_msgs::PoseStamped global_setpoint;
+geometry_msgs::PoseStamped local_setpoint;
 
 void state_cb(const mavros_msgs::State::ConstPtr &msg)
 {
@@ -28,10 +28,10 @@ void pose_cb(const geometry_msgs::PoseStamped::ConstPtr &msg)
     current_pose = *msg;
 }
 
-void global_set_point_cb(const geometry_msgs::PoseStamped::ConstPtr &msg)
+void global_setpoint_cb(const geometry_msgs::PoseStamped::ConstPtr &msg)
 {
-    current_set_point = *msg;
-    start_flag = 1;
+    global_setpoint = *msg;
+    start_receiving_setpoint = true;
 }
 
 int main(int argc, char **argv)
@@ -40,12 +40,12 @@ int main(int argc, char **argv)
 
     ros::NodeHandle nh;
     ros::Subscriber state_sub = nh.subscribe<mavros_msgs::State>("mavros/state", 10, state_cb);
-    ros::Publisher local_pos_pub = nh.advertise<geometry_msgs::PoseStamped>("mavros/setpoint_position/local", 10);
-    ros::Subscriber local_pos_sub = nh.subscribe<geometry_msgs::PoseStamped>("mavros/local_position/pose", 10, pose_cb);
+    ros::Publisher local_setpoint_pub = nh.advertise<geometry_msgs::PoseStamped>("mavros/setpoint_position/local", 10);
+    ros::Subscriber local_pose_sub = nh.subscribe<geometry_msgs::PoseStamped>("mavros/local_position/pose", 10, pose_cb);
     ros::Publisher local_cmd_vel_pub = nh.advertise<geometry_msgs::Twist>("mavros/setpoint_velocity/cmd_vel_unstamped", 10);
     ros::ServiceClient arming_client = nh.serviceClient<mavros_msgs::CommandBool>("mavros/cmd/arming");
     ros::ServiceClient set_mode_client = nh.serviceClient<mavros_msgs::SetMode>("mavros/set_mode");
-    ros::Subscriber global_set_point_sub = nh.subscribe<geometry_msgs::PoseStamped>("global_position/set_point", 10, global_set_point_cb);
+    ros::Subscriber global_set_point_sub = nh.subscribe<geometry_msgs::PoseStamped>("global_position/setpoint", 10, global_setpoint_cb);
     ros::Publisher global_pose_pub = nh.advertise<geometry_msgs::PoseStamped>("global_position/pose", 10);
     tf2_ros::Buffer tfBuffer;
     tf2_ros::TransformListener tfListener(tfBuffer);
@@ -63,9 +63,9 @@ int main(int argc, char **argv)
         }
     }
 
-    std::string source_frame = nh.getNamespace() + "_world";
-    source_frame.erase(remove(source_frame.begin(), source_frame.end(), '/'), source_frame.end()); // remove / from string
-    std::string target_frame = "world";
+    std::string world_frame = "world";
+    std::string current_frame = nh.getNamespace() + "_world";
+    current_frame.erase(remove(current_frame.begin(), current_frame.end(), '/'), current_frame.end()); // remove / from string
 
     // wait for FCU connection
     while (ros::ok() && !current_state.connected)
@@ -75,19 +75,19 @@ int main(int argc, char **argv)
     }
     ROS_INFO("%s: Connected to FCU", ns);
 
-    geometry_msgs::PoseStamped target_pose;
-    target_pose.pose.position.x = 0;
-    target_pose.pose.position.y = 0;
-    target_pose.pose.position.z = Z_OFFSET;
-    current_pose = target_pose;
+    geometry_msgs::PoseStamped init_set_point;
+    init_set_point.pose.position.x = 0;
+    init_set_point.pose.position.y = 0;
+    init_set_point.pose.position.z = 1.5;
 
     // send a few setpoints before starting
     for (int i = 100; ros::ok() && i > 0; --i)
     {
-        local_pos_pub.publish(target_pose);
+        local_setpoint_pub.publish(init_set_point);
         ros::spinOnce();
         rate.sleep();
     }
+    local_setpoint = init_set_point;
 
     mavros_msgs::SetMode offb_set_mode;
     offb_set_mode.request.custom_mode = "OFFBOARD";
@@ -124,24 +124,34 @@ int main(int argc, char **argv)
             }
         }
 
-        if (start_flag)
-        {
-            target_pose.pose.position.x = current_set_point.pose.position.x;
-            target_pose.pose.position.y = current_set_point.pose.position.y;
-            target_pose.pose.position.z = Z_OFFSET + current_set_point.pose.position.z;
-        }
-
-
         // Move UAV to target position
-        local_pos_pub.publish(target_pose);
+        if (!start_receiving_setpoint)
+        {
+            local_setpoint_pub.publish(local_setpoint);
+        }
+        else
+        {
+            try
+            {
+                geometry_msgs::TransformStamped tf = tfBuffer.lookupTransform(current_frame, world_frame, ros::Time(0));                ;
+                tf2::doTransform(global_setpoint, local_setpoint, tf);
+                local_setpoint_pub.publish(local_setpoint);
+            }
+            catch (tf2::TransformException ex)
+            {
+                ROS_WARN("%s", ex.what());
+                ros::Duration(1.0).sleep();
+                continue;
+            }
+        }
 
         // Public global world pose
         try
         {
-            uav_world_tf = tfBuffer.lookupTransform(target_frame, source_frame, ros::Time(0));
+            geometry_msgs::TransformStamped tf = tfBuffer.lookupTransform(world_frame, current_frame, ros::Time(0));
             geometry_msgs::PoseStamped global_pose;
-            tf2::doTransform(current_pose, global_pose, uav_world_tf);
-            global_pose_pub.publish(global_pose);           
+            tf2::doTransform(current_pose, global_pose, tf);
+            global_pose_pub.publish(global_pose);
         }
         catch (tf2::TransformException ex)
         {

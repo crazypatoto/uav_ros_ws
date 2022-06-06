@@ -16,4 +16,14 @@
 		<param name="debug" value="$(arg debug)" />
 		<node name="move_uav_node_2" pkg="move_uav" type="move_uav_node" output="screen" />
 	</group>
+	<!-- UAV3 -->
+	<group ns="uav3">
+		<param name="debug" value="$(arg debug)" />
+		<node name="move_uav_node_3" pkg="move_uav" type="move_uav_node" output="screen" />
+	</group>
+	<!-- UAV4 -->
+	<group ns="uav4">
+		<param name="debug" value="$(arg debug)" />
+		<node name="move_uav_node_4" pkg="move_uav" type="move_uav_node" output="screen" />
+	</group>	
 </launch>

@@ -48,14 +48,14 @@ int main(int argc, char **argv)
     ros::NodeHandle nh;
     
     ros::Publisher set_point_pub = nh.advertise<geometry_msgs::PoseStamped>
-            ("global_position/set_point", 10);
+            ("global_position/setpoint", 10);
 
     ros::Rate rate(100.0);  
 
     geometry_msgs::PoseStamped pose;
-    pose.pose.position.x = 0;
-    pose.pose.position.y = 0;
-    pose.pose.position.z = 1;
+    pose.pose.position.x = 0.5;
+    pose.pose.position.y = 0.5;
+    pose.pose.position.z = 0.5;
     
     set_point_pub.publish(pose);    // Public set point once
   
@@ -102,7 +102,7 @@ int main(int argc, char **argv)
             break;
         }
         
-        ROS_INFO("x: %.0f, y: %.0f, z: %.0f", pose.pose.position.x, pose.pose.position.y, pose.pose.position.z);
+        ROS_INFO("x: %.1f, y: %.1f, z: %.1f", pose.pose.position.x, pose.pose.position.y, pose.pose.position.z);
 
         set_point_pub.publish(pose);
         ros::spinOnce();
