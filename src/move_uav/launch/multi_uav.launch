@@ -1,29 +1,233 @@
 <?xml version="1.0"?>
 <launch>
+
+	<!-- vehicle model and world -->
+	<arg name="est" default="ekf2" />
+	<arg name="vehicle" default="iris" />
+	<arg name="world" default="$(find uav_gazebo)/worlds/ntu_campus.world" />
+	<!-- gazebo configs -->
+	<arg name="gui" default="true" />
 	<arg name="debug" default="false" />
+	<arg name="verbose" default="false" />
+	<arg name="paused" default="false" />
+
+	<!-- $(find gazebo_ros)/launch/empty_world.launch -->
+	<include file="$(find gazebo_ros)/launch/empty_world.launch">
+		<arg name="gui" value="$(arg gui)" />
+		<arg name="world_name" value="$(arg world)" />
+		<arg name="debug" value="$(arg debug)" />
+		<arg name="verbose" value="$(arg verbose)" />
+		<arg name="paused" value="$(arg paused)" />
+	</include>
+
 	<!-- UAV0 -->
 	<group ns="uav0">
-		<param name="debug" value="$(arg debug)" />
+		<!-- Move UAV Node -->
 		<node name="move_uav_node_0" pkg="move_uav" type="move_uav_node" output="screen" />
+		<!-- MAVROS and vehicle configs -->
+		<arg name="ID" value="0" />
+		<arg name="fcu_local_port" default="$(eval 14580 + arg('ID'))" />
+		<arg name="fcu_remote_port" default="$(eval 14540 + arg('ID'))" />
+		<arg name="fcu_url" default="udp://:$(arg fcu_remote_port)@localhost:$(arg fcu_local_port)" />
+		<arg name="x" value="142" />
+		<arg name="y" value="223" />
+		<arg name="z" value="19" />
+		<arg name="R" value="0" />
+		<arg name="P" value="0" />
+		<arg name="Y" value="0" />
+		<!-- PX4 SITL and vehicle spawn -->
+		<include file="$(find px4)/launch/single_vehicle_spawn.launch">
+			<arg name="x" value="$(arg x)" />
+			<arg name="y" value="$(arg y)" />
+			<arg name="z" value="$(arg z)" />
+			<arg name="R" value="$(arg R)" />
+			<arg name="P" value="$(arg P)" />
+			<arg name="Y" value="$(arg Y)" />
+			<arg name="vehicle" value="$(arg vehicle)" />
+			<arg name="mavlink_udp_port" value="$(eval 14560 + arg('ID'))" />
+			<arg name="mavlink_tcp_port" value="$(eval 4560 + arg('ID'))" />
+			<arg name="ID" value="$(arg ID)" />
+			<arg name="gst_udp_port" value="$(eval 5600 + arg('ID'))" />
+			<arg name="video_uri" value="$(eval 5600 + arg('ID'))" />
+			<arg name="mavlink_cam_udp_port" value="$(eval 14530 + arg('ID'))" />
+		</include>
+		<!-- MAVROS -->
+		<include file="$(find mavros)/launch/px4.launch">
+			<arg name="fcu_url" value="$(arg fcu_url)" />
+			<arg name="gcs_url" value="" />
+			<arg name="tgt_system" value="$(eval 1 + arg('ID'))" />
+			<arg name="tgt_component" value="1" />
+		</include>
+		<!-- Transform Publisher -->
+		<node pkg="tf" type="static_transform_publisher" name="uav_world_publisher" args="$(arg x) $(arg y) $(arg z) $(arg Y) $(arg P) $(arg R) world uav$(arg ID)_world 100" />
 	</group>
+
 	<!-- UAV1 -->
 	<group ns="uav1">
-		<param name="debug" value="$(arg debug)" />
+		<!-- Move UAV Node -->
 		<node name="move_uav_node_1" pkg="move_uav" type="move_uav_node" output="screen" />
+		<!-- MAVROS and vehicle configs -->
+		<arg name="ID" value="1" />
+		<arg name="fcu_local_port" default="$(eval 14580 + arg('ID'))" />
+		<arg name="fcu_remote_port" default="$(eval 14540 + arg('ID'))" />
+		<arg name="fcu_url" default="udp://:$(arg fcu_remote_port)@localhost:$(arg fcu_local_port)" />
+		<arg name="x" value="143" />
+		<arg name="y" value="223" />
+		<arg name="z" value="19" />
+		<arg name="R" value="0" />
+		<arg name="P" value="0" />
+		<arg name="Y" value="0" />
+		<!-- PX4 SITL and vehicle spawn -->
+		<include file="$(find px4)/launch/single_vehicle_spawn.launch">
+			<arg name="x" value="$(arg x)" />
+			<arg name="y" value="$(arg y)" />
+			<arg name="z" value="$(arg z)" />
+			<arg name="R" value="$(arg R)" />
+			<arg name="P" value="$(arg P)" />
+			<arg name="Y" value="$(arg Y)" />
+			<arg name="vehicle" value="$(arg vehicle)" />
+			<arg name="mavlink_udp_port" value="$(eval 14560 + arg('ID'))" />
+			<arg name="mavlink_tcp_port" value="$(eval 4560 + arg('ID'))" />
+			<arg name="ID" value="$(arg ID)" />
+			<arg name="gst_udp_port" value="$(eval 5600 + arg('ID'))" />
+			<arg name="video_uri" value="$(eval 5600 + arg('ID'))" />
+			<arg name="mavlink_cam_udp_port" value="$(eval 14530 + arg('ID'))" />
+		</include>
+		<!-- MAVROS -->
+		<include file="$(find mavros)/launch/px4.launch">
+			<arg name="fcu_url" value="$(arg fcu_url)" />
+			<arg name="gcs_url" value="" />
+			<arg name="tgt_system" value="$(eval 1 + arg('ID'))" />
+			<arg name="tgt_component" value="1" />
+		</include>
+		<!-- Transform Publisher -->
+		<node pkg="tf" type="static_transform_publisher" name="uav_world_publisher" args="$(arg x) $(arg y) $(arg z) $(arg Y) $(arg P) $(arg R) world uav$(arg ID)_world 100" />
 	</group>
+
 	<!-- UAV2 -->
 	<group ns="uav2">
-		<param name="debug" value="$(arg debug)" />
+		<!-- Move UAV Node -->
 		<node name="move_uav_node_2" pkg="move_uav" type="move_uav_node" output="screen" />
+		<!-- MAVROS and vehicle configs -->
+		<arg name="ID" value="2" />
+		<arg name="fcu_local_port" default="$(eval 14580 + arg('ID'))" />
+		<arg name="fcu_remote_port" default="$(eval 14540 + arg('ID'))" />
+		<arg name="fcu_url" default="udp://:$(arg fcu_remote_port)@localhost:$(arg fcu_local_port)" />
+		<arg name="x" value="144" />
+		<arg name="y" value="223" />
+		<arg name="z" value="19" />
+		<arg name="R" value="0" />
+		<arg name="P" value="0" />
+		<arg name="Y" value="0" />
+		<!-- PX4 SITL and vehicle spawn -->
+		<include file="$(find px4)/launch/single_vehicle_spawn.launch">
+			<arg name="x" value="$(arg x)" />
+			<arg name="y" value="$(arg y)" />
+			<arg name="z" value="$(arg z)" />
+			<arg name="R" value="$(arg R)" />
+			<arg name="P" value="$(arg P)" />
+			<arg name="Y" value="$(arg Y)" />
+			<arg name="vehicle" value="$(arg vehicle)" />
+			<arg name="mavlink_udp_port" value="$(eval 14560 + arg('ID'))" />
+			<arg name="mavlink_tcp_port" value="$(eval 4560 + arg('ID'))" />
+			<arg name="ID" value="$(arg ID)" />
+			<arg name="gst_udp_port" value="$(eval 5600 + arg('ID'))" />
+			<arg name="video_uri" value="$(eval 5600 + arg('ID'))" />
+			<arg name="mavlink_cam_udp_port" value="$(eval 14530 + arg('ID'))" />
+		</include>
+		<!-- MAVROS -->
+		<include file="$(find mavros)/launch/px4.launch">
+			<arg name="fcu_url" value="$(arg fcu_url)" />
+			<arg name="gcs_url" value="" />
+			<arg name="tgt_system" value="$(eval 1 + arg('ID'))" />
+			<arg name="tgt_component" value="1" />
+		</include>
+		<!-- Transform Publisher -->
+		<node pkg="tf" type="static_transform_publisher" name="uav_world_publisher" args="$(arg x) $(arg y) $(arg z) $(arg Y) $(arg P) $(arg R) world uav$(arg ID)_world 100" />
 	</group>
+
 	<!-- UAV3 -->
 	<group ns="uav3">
-		<param name="debug" value="$(arg debug)" />
+		<!-- Move UAV Node -->
 		<node name="move_uav_node_3" pkg="move_uav" type="move_uav_node" output="screen" />
+		<!-- MAVROS and vehicle configs -->
+		<arg name="ID" value="3" />
+		<arg name="fcu_local_port" default="$(eval 14580 + arg('ID'))" />
+		<arg name="fcu_remote_port" default="$(eval 14540 + arg('ID'))" />
+		<arg name="fcu_url" default="udp://:$(arg fcu_remote_port)@localhost:$(arg fcu_local_port)" />
+		<arg name="x" value="-410" />
+		<arg name="y" value="-78" />
+		<arg name="z" value="37" />
+		<arg name="R" value="0" />
+		<arg name="P" value="0" />
+		<arg name="Y" value="0" />
+		<!-- PX4 SITL and vehicle spawn -->
+		<include file="$(find px4)/launch/single_vehicle_spawn.launch">
+			<arg name="x" value="$(arg x)" />
+			<arg name="y" value="$(arg y)" />
+			<arg name="z" value="$(arg z)" />
+			<arg name="R" value="$(arg R)" />
+			<arg name="P" value="$(arg P)" />
+			<arg name="Y" value="$(arg Y)" />
+			<arg name="vehicle" value="$(arg vehicle)" />
+			<arg name="mavlink_udp_port" value="$(eval 14560 + arg('ID'))" />
+			<arg name="mavlink_tcp_port" value="$(eval 4560 + arg('ID'))" />
+			<arg name="ID" value="$(arg ID)" />
+			<arg name="gst_udp_port" value="$(eval 5600 + arg('ID'))" />
+			<arg name="video_uri" value="$(eval 5600 + arg('ID'))" />
+			<arg name="mavlink_cam_udp_port" value="$(eval 14530 + arg('ID'))" />
+		</include>
+		<!-- MAVROS -->
+		<include file="$(find mavros)/launch/px4.launch">
+			<arg name="fcu_url" value="$(arg fcu_url)" />
+			<arg name="gcs_url" value="" />
+			<arg name="tgt_system" value="$(eval 1 + arg('ID'))" />
+			<arg name="tgt_component" value="1" />
+		</include>
+		<!-- Transform Publisher -->
+		<node pkg="tf" type="static_transform_publisher" name="uav_world_publisher" args="$(arg x) $(arg y) $(arg z) $(arg Y) $(arg P) $(arg R) world uav$(arg ID)_world 100" />
 	</group>
+
 	<!-- UAV4 -->
 	<group ns="uav4">
-		<param name="debug" value="$(arg debug)" />
+		<!-- Move UAV Node -->	
 		<node name="move_uav_node_4" pkg="move_uav" type="move_uav_node" output="screen" />
-	</group>	
+		<!-- MAVROS and vehicle configs -->
+		<arg name="ID" value="4" />
+		<arg name="fcu_local_port" default="$(eval 14580 + arg('ID'))" />
+		<arg name="fcu_remote_port" default="$(eval 14540 + arg('ID'))" />
+		<arg name="fcu_url" default="udp://:$(arg fcu_remote_port)@localhost:$(arg fcu_local_port)" />
+		<arg name="x" value="-543" />
+		<arg name="y" value="-273" />
+		<arg name="z" value="47" />
+		<arg name="R" value="0" />
+		<arg name="P" value="0" />
+		<arg name="Y" value="0" />
+		<!-- PX4 SITL and vehicle spawn -->
+		<include file="$(find px4)/launch/single_vehicle_spawn.launch">
+			<arg name="x" value="$(arg x)" />
+			<arg name="y" value="$(arg y)" />
+			<arg name="z" value="$(arg z)" />
+			<arg name="R" value="$(arg R)" />
+			<arg name="P" value="$(arg P)" />
+			<arg name="Y" value="$(arg Y)" />
+			<arg name="vehicle" value="$(arg vehicle)" />
+			<arg name="mavlink_udp_port" value="$(eval 14560 + arg('ID'))" />
+			<arg name="mavlink_tcp_port" value="$(eval 4560 + arg('ID'))" />
+			<arg name="ID" value="$(arg ID)" />
+			<arg name="gst_udp_port" value="$(eval 5600 + arg('ID'))" />
+			<arg name="video_uri" value="$(eval 5600 + arg('ID'))" />
+			<arg name="mavlink_cam_udp_port" value="$(eval 14530 + arg('ID'))" />
+		</include>
+		<!-- MAVROS -->
+		<include file="$(find mavros)/launch/px4.launch">
+			<arg name="fcu_url" value="$(arg fcu_url)" />
+			<arg name="gcs_url" value="" />
+			<arg name="tgt_system" value="$(eval 1 + arg('ID'))" />
+			<arg name="tgt_component" value="1" />
+		</include>
+		<!-- Transform Publisher -->
+		<node pkg="tf" type="static_transform_publisher" name="uav_world_publisher" args="$(arg x) $(arg y) $(arg z) $(arg Y) $(arg P) $(arg R) world uav$(arg ID)_world 100" />
+	</group>
+
 </launch>

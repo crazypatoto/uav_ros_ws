@@ -9,7 +9,8 @@ project(move_uav)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
   geometry_msgs
-  mavros_msgs
+  nav_msgs
+  mavros_msgs  
   roscpp
   std_msgs
   tf2

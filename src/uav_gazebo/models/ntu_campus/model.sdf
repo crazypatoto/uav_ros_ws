@@ -1,0 +1,40 @@
+<?xml version="1.0"?>
+<sdf version="1.5">
+  <model name="ntu">
+    <pose>0 0 0 0 0 0</pose>
+    <static>true</static>
+    <link name="body">
+      <visual name="visual">
+        <geometry>
+          <mesh>
+            <uri>model://ntu_campus/media/Terrain.dae</uri>
+          </mesh>
+        </geometry>
+      </visual>
+      <collision name="collision">
+        <geometry>
+          <mesh>
+            <uri>model://ntu_campus/media/Terrain.dae</uri>
+          </mesh>
+        </geometry>
+      </collision>
+    </link>
+
+    <link name="buildings">
+      <visual name="visual">
+        <geometry>
+          <mesh>
+            <uri>model://ntu_campus/media/Buildings.dae</uri>
+          </mesh>
+        </geometry>
+      </visual>
+      <collision name="collision">
+        <geometry>
+          <mesh>
+            <uri>model://ntu_campus/media/Buildings.dae</uri>
+          </mesh>
+        </geometry>
+      </collision>
+    </link>
+  </model>
+</sdf>

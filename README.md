@@ -33,3 +33,16 @@ roslaunch move_uav single_uav.launch
 ```bash
 rosrun offboard_pkg keyboard_move_node 
 ```
+
+## Alternative Method
+1. Go into PX4-Autopilot directory:
+```bash
+source ~/uav_ros_ws/devel/setup.bash 
+source Tools/setup_gazebo.bash $(pwd) $(pwd)/build/px4_sitl_default
+export ROS_PACKAGE_PATH=$ROS_PACKAGE_PATH:$(pwd)
+export ROS_PACKAGE_PATH=$ROS_PACKAGE_PATH:$(pwd)/Tools/sitl_gazebo
+```
+2. Run
+```bash
+roslaunch move_uav single_uav.launch 
+```
