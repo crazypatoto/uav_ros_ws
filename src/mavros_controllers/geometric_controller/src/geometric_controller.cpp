@@ -60,11 +60,13 @@ geometricCtrl::geometricCtrl(const ros::NodeHandle &nh, const ros::NodeHandle &n
   multiDOFJointSub_ = nh_.subscribe("command/trajectory", 1, &geometricCtrl::multiDOFJointCallback, this,
                                     ros::TransportHints().tcpNoDelay());
   mavstateSub_ =
-      nh_.subscribe("mavros/state", 1, &geometricCtrl::mavstateCallback, this, ros::TransportHints().tcpNoDelay());
+      nh_.subscribe("mavros/state", 1, &geometricCtrl::mavstateCallback, this, ros::TransportHints().tcpNoDelay());   
   mavposeSub_ = nh_.subscribe("mavros/local_position/pose", 1, &geometricCtrl::mavposeCallback, this,
                               ros::TransportHints().tcpNoDelay());
   mavtwistSub_ = nh_.subscribe("mavros/local_position/velocity_local", 1, &geometricCtrl::mavtwistCallback, this,
                                ros::TransportHints().tcpNoDelay());
+  groudTrurhSub_ = nh_.subscribe("ground_truth/state", 1, &geometricCtrl::groundTruthCallback, this,
+                              ros::TransportHints().tcpNoDelay());   
   ctrltriggerServ_ = nh_.advertiseService("trigger_rlcontroller", &geometricCtrl::ctrltriggerCallback, this);
   cmdloop_timer_ = nh_.createTimer(ros::Duration(0.01), &geometricCtrl::cmdloopCallback,
                                    this);  // Define timer for constant loop rate
@@ -102,6 +104,7 @@ geometricCtrl::geometricCtrl(const ros::NodeHandle &nh, const ros::NodeHandle &n
   nh_private_.param<double>("init_pos_x", initTargetPos_x_, 0.0);
   nh_private_.param<double>("init_pos_y", initTargetPos_y_, 0.0);
   nh_private_.param<double>("init_pos_z", initTargetPos_z_, 2.0);
+  nh_private_.param<bool>("use_groudtruth", useGroundTruthPose, false);
 
   targetPos_ << initTargetPos_x_, initTargetPos_y_, initTargetPos_z_;  // Initial Position
   targetVel_ << 0.0, 0.0, 0.0;
@@ -200,6 +203,7 @@ void geometricCtrl::multiDOFJointCallback(const trajectory_msgs::MultiDOFJointTr
 }
 
 void geometricCtrl::mavposeCallback(const geometry_msgs::PoseStamped &msg) {
+  if(useGroundTruthPose) return;
   if (!received_home_pose) {
     received_home_pose = true;
     home_pose_ = msg.pose;
@@ -213,8 +217,26 @@ void geometricCtrl::mavposeCallback(const geometry_msgs::PoseStamped &msg) {
 }
 
 void geometricCtrl::mavtwistCallback(const geometry_msgs::TwistStamped &msg) {
+  if(useGroundTruthPose) return;
   mavVel_ = toEigen(msg.twist.linear);
   mavRate_ = toEigen(msg.twist.angular);
+}
+
+void geometricCtrl::groundTruthCallback(const nav_msgs::Odometry &msg) {
+  if(!useGroundTruthPose) return;
+  if (!received_home_pose) {
+    received_home_pose = true;
+    home_pose_ = msg.pose.pose;
+    ROS_INFO_STREAM("Home pose initialized to: " << home_pose_);
+  }
+  mavPos_ = toEigen(msg.pose.pose.position);
+  mavAtt_(0) = msg.pose.pose.orientation.w;
+  mavAtt_(1) = msg.pose.pose.orientation.x;
+  mavAtt_(2) = msg.pose.pose.orientation.y;
+  mavAtt_(3) = msg.pose.pose.orientation.z;
+
+  mavVel_ = toEigen(msg.twist.twist.linear);
+  mavRate_ = toEigen(msg.twist.twist.angular);
 }
 
 bool geometricCtrl::landCallback(std_srvs::SetBool::Request &request, std_srvs::SetBool::Response &response) {

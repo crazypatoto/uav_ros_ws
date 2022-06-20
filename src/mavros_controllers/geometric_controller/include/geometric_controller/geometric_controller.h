@@ -100,6 +100,7 @@ class geometricCtrl {
   ros::Subscriber mavstateSub_;
   ros::Subscriber mavposeSub_, gzmavposeSub_;
   ros::Subscriber mavtwistSub_;
+  ros::Subscriber groudTrurhSub_;
   ros::Subscriber yawreferenceSub_;
   ros::Publisher rotorVelPub_, angularVelPub_, target_pose_pub_;
   ros::Publisher referencePosePub_;
@@ -145,6 +146,8 @@ class geometricCtrl {
   double Kpos_x_, Kpos_y_, Kpos_z_, Kvel_x_, Kvel_y_, Kvel_z_;
   int posehistory_window_;
 
+  bool useGroundTruthPose;
+
   void pubMotorCommands();
   void pubRateCommands(const Eigen::Vector4d &cmd, const Eigen::Vector4d &target_attitude);
   void pubReferencePose(const Eigen::Vector3d &target_position, const Eigen::Vector4d &target_attitude);
@@ -161,6 +164,7 @@ class geometricCtrl {
   void mavstateCallback(const mavros_msgs::State::ConstPtr &msg);
   void mavposeCallback(const geometry_msgs::PoseStamped &msg);
   void mavtwistCallback(const geometry_msgs::TwistStamped &msg);
+  void groundTruthCallback(const nav_msgs::Odometry &msg);
   void statusloopCallback(const ros::TimerEvent &event);
   bool ctrltriggerCallback(std_srvs::SetBool::Request &req, std_srvs::SetBool::Response &res);
   bool landCallback(std_srvs::SetBool::Request &request, std_srvs::SetBool::Response &response);

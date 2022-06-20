@@ -1,5 +1,12 @@
 # UAV Simulation ROS Worksapce
 
+## Prerequisites
+- Install PX4 Autopilot Firmare (v1.12.3)
+```bash
+git clone -b v1.12.3 https://github.com/crazypatoto/PX4-Autopilot.git --recursive
+bash ./PX4-Autopilot/Tools/setup/ubuntu.sh
+```
+
 ## Start the simulation
 
 1. Go into PX4-Autopilot directory:
