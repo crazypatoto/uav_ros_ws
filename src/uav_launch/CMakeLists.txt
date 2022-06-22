@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.0.2)
-project(move_uav)
+project(uav_launch)
 
 ## Compile as C++11, supported in ROS Kinetic and newer
 # add_compile_options(-std=c++11)
@@ -7,18 +7,7 @@ project(move_uav)
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
-find_package(catkin REQUIRED COMPONENTS
-  geometry_msgs
-  nav_msgs
-  sensor_msgs
-  geographic_msgs
-  mavros_msgs  
-  roscpp
-  std_msgs
-  tf2
-  tf2_ros
-  tf2_geometry_msgs
-)
+find_package(catkin REQUIRED)
 
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
@@ -77,7 +66,7 @@ find_package(catkin REQUIRED COMPONENTS
 ## Generate added messages and services with any dependencies listed here
 # generate_messages(
 #   DEPENDENCIES
-#   geometry_msgs#   mavros_msgs#   std_msgs
+#   std_msgs  # Or other packages containing msgs
 # )
 
 ################################################
@@ -111,8 +100,8 @@ find_package(catkin REQUIRED COMPONENTS
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
 #  INCLUDE_DIRS include
-#  LIBRARIES move_uav
-#  CATKIN_DEPENDS geometry_msgs mavros_msgs roscpp std_msgs
+#  LIBRARIES uav_launch
+#  CATKIN_DEPENDS other_catkin_pkg
 #  DEPENDS system_lib
 )
 
@@ -124,12 +113,12 @@ catkin_package(
 ## Your package locations should be listed before other locations
 include_directories(
 # include
-  ${catkin_INCLUDE_DIRS}
+# ${catkin_INCLUDE_DIRS}
 )
 
 ## Declare a C++ library
 # add_library(${PROJECT_NAME}
-#   src/${PROJECT_NAME}/move_uav.cpp
+#   src/${PROJECT_NAME}/uav_launch.cpp
 # )
 
 ## Add cmake target dependencies of the library
@@ -140,11 +129,7 @@ include_directories(
 ## Declare a C++ executable
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
-# add_executable(${PROJECT_NAME}_node src/move_uav_node.cpp)
-add_executable(move_uav_node src/move_uav_node.cpp)
-add_executable(keyboard_move_node src/keyboard_move_node.cpp)
-add_executable(animation_node src/animation_node.cpp)
-add_executable(move_uav_global_node src/move_uav_global_node.cpp)
+# add_executable(${PROJECT_NAME}_node src/uav_launch_node.cpp)
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
@@ -160,10 +145,6 @@ add_executable(move_uav_global_node src/move_uav_global_node.cpp)
 # target_link_libraries(${PROJECT_NAME}_node
 #   ${catkin_LIBRARIES}
 # )
-target_link_libraries(move_uav_node ${catkin_LIBRARIES})
-target_link_libraries(keyboard_move_node ${catkin_LIBRARIES})
-target_link_libraries(animation_node ${catkin_LIBRARIES})
-target_link_libraries(move_uav_global_node ${catkin_LIBRARIES})
 
 #############
 ## Install ##
@@ -212,7 +193,7 @@ target_link_libraries(move_uav_global_node ${catkin_LIBRARIES})
 #############
 
 ## Add gtest based cpp test target and link libraries
-# catkin_add_gtest(${PROJECT_NAME}-test test/test_move_uav.cpp)
+# catkin_add_gtest(${PROJECT_NAME}-test test/test_uav_launch.cpp)
 # if(TARGET ${PROJECT_NAME}-test)
 #   target_link_libraries(${PROJECT_NAME}-test ${PROJECT_NAME})
 # endif()

@@ -32,7 +32,7 @@
       <surface_model>EARTH_WGS84</surface_model>
       <latitude_deg>25.017</latitude_deg>
       <longitude_deg>121.5396</longitude_deg>
-      <elevation>1.7</elevation>
+      <elevation>0</elevation>
     </spherical_coordinates>
 
     <physics name='default_physics' default='0' type='ode'>
