@@ -24,7 +24,11 @@
 	<!-- UAV0 -->
 	<group ns="uav0">
 		<!-- move uav node -->
-		<!-- <node name="move_uav_global_node_0" pkg="move_uav" type="move_uav_global_node" output="screen" /> -->
+		<!-- <node pkg="move_uav" type="move_uav_global_node" name="move_uav_global" output="screen">
+			<param name="init_pos_latitude" value="25.017" />
+			<param name="init_pos_longitude" value="121.5396" />
+			<param name="init_pos_altitude" value="30" />
+		</node> -->
 
 		<!-- MAVROS and vehicle configs -->
 		<arg name="ID" value="0" />
@@ -92,7 +96,11 @@
 	<!-- UAV1 -->
 	<group ns="uav1">
 		<!-- move uav node -->
-		<!-- <node name="move_uav_global_node_0" pkg="move_uav" type="move_uav_global_node" output="screen" /> -->
+		<node pkg="move_uav" type="move_uav_global_node" name="move_uav_global" output="screen">
+			<param name="init_pos_latitude" value="25.017" />
+			<param name="init_pos_longitude" value="121.5396" />
+			<param name="init_pos_altitude" value="31" />
+		</node>
 
 		<!-- MAVROS and vehicle configs -->
 		<arg name="ID" value="1" />
@@ -129,30 +137,6 @@
 			<arg name="tgt_component" value="1" />
 		</include>
 
-		<!-- Geometric Controller -->
-		<node pkg="geometric_controller" type="geometric_controller_node" name="geometric_controller" output="screen">
-			<remap from="command/bodyrate_command" to="mavros/setpoint_raw/attitude" />
-			<param name="ctrl_mode" value="2" />
-			<param name="enable_sim" value="true" />
-			<param name="enable_gazebo_state" value="true" />
-			<param name="max_acc" value="10.0" />
-			<param name="init_pos_x" value="0" />
-			<param name="init_pos_y" value="0" />
-			<param name="init_pos_z" value="31" />
-			<!--Params specific for Iris copter-->
-			<param name="attctrl_constant" value="0.3" />
-			<param name="normalizedthrust_constant" value="0.06" />
-			<param name="normalizedthrust_offset" value="0.1" />
-			<param name="Kp_x" value="10.0" />
-			<param name="Kp_y" value="10.0" />
-			<param name="Kp_z" value="20.0" />
-			<param name="Kv_x" value="5.0" />
-			<param name="Kv_y" value="5.0" />
-			<param name="Kv_z" value="10.0" />
-			<!--Use ground truth pose from gazebo plugin-->
-			<param name="use_groudtruth" value="true" />
-		</node>
-
 		<!-- Transform Publisher -->
 		<node pkg="tf" type="static_transform_publisher" name="uav_world_publisher" args="$(arg x) $(arg y) $(arg z) $(arg Y) $(arg P) $(arg R) world uav$(arg ID)_world 100" />
 	</group>
@@ -160,7 +144,11 @@
 	<!-- UAV2 -->
 	<group ns="uav2">
 		<!-- move uav node -->
-		<!-- <node name="move_uav_global_node_0" pkg="move_uav" type="move_uav_global_node" output="screen" /> -->
+		<node pkg="move_uav" type="move_uav_global_node" name="move_uav_global" output="screen">
+			<param name="init_pos_latitude" value="25.017" />
+			<param name="init_pos_longitude" value="121.5396" />
+			<param name="init_pos_altitude" value="32" />
+		</node>
 
 		<!-- MAVROS and vehicle configs -->
 		<arg name="ID" value="2" />
@@ -197,30 +185,6 @@
 			<arg name="tgt_component" value="1" />
 		</include>
 
-		<!-- Geometric Controller -->
-		<node pkg="geometric_controller" type="geometric_controller_node" name="geometric_controller" output="screen">
-			<remap from="command/bodyrate_command" to="mavros/setpoint_raw/attitude" />
-			<param name="ctrl_mode" value="2" />
-			<param name="enable_sim" value="true" />
-			<param name="enable_gazebo_state" value="true" />
-			<param name="max_acc" value="10.0" />
-			<param name="init_pos_x" value="0" />
-			<param name="init_pos_y" value="0" />
-			<param name="init_pos_z" value="32" />
-			<!--Params specific for Iris copter-->
-			<param name="attctrl_constant" value="0.3" />
-			<param name="normalizedthrust_constant" value="0.06" />
-			<param name="normalizedthrust_offset" value="0.1" />
-			<param name="Kp_x" value="10.0" />
-			<param name="Kp_y" value="10.0" />
-			<param name="Kp_z" value="20.0" />
-			<param name="Kv_x" value="5.0" />
-			<param name="Kv_y" value="5.0" />
-			<param name="Kv_z" value="10.0" />
-			<!--Use ground truth pose from gazebo plugin-->
-			<param name="use_groudtruth" value="true" />
-		</node>
-
 		<!-- Transform Publisher -->
 		<node pkg="tf" type="static_transform_publisher" name="uav_world_publisher" args="$(arg x) $(arg y) $(arg z) $(arg Y) $(arg P) $(arg R) world uav$(arg ID)_world 100" />
 	</group>
@@ -228,7 +192,11 @@
 	<!-- UAV3 -->
 	<group ns="uav3">
 		<!-- move uav node -->
-		<!-- <node name="move_uav_global_node_0" pkg="move_uav" type="move_uav_global_node" output="screen" /> -->
+		<node pkg="move_uav" type="move_uav_global_node" name="move_uav_global" output="screen">
+			<param name="init_pos_latitude" value="25.017" />
+			<param name="init_pos_longitude" value="121.5396" />
+			<param name="init_pos_altitude" value="33" />
+		</node>
 
 		<!-- MAVROS and vehicle configs -->
 		<arg name="ID" value="3" />
@@ -265,29 +233,6 @@
 			<arg name="tgt_component" value="1" />
 		</include>
 
-		<!-- Geometric Controller -->
-		<node pkg="geometric_controller" type="geometric_controller_node" name="geometric_controller" output="screen">
-			<remap from="command/bodyrate_command" to="mavros/setpoint_raw/attitude" />
-			<param name="ctrl_mode" value="2" />
-			<param name="enable_sim" value="true" />
-			<param name="enable_gazebo_state" value="true" />
-			<param name="max_acc" value="10.0" />
-			<param name="init_pos_x" value="0" />
-			<param name="init_pos_y" value="0" />
-			<param name="init_pos_z" value="33" />
-			<!--Params specific for Iris copter-->
-			<param name="attctrl_constant" value="0.3" />
-			<param name="normalizedthrust_constant" value="0.06" />
-			<param name="normalizedthrust_offset" value="0.1" />
-			<param name="Kp_x" value="10.0" />
-			<param name="Kp_y" value="10.0" />
-			<param name="Kp_z" value="20.0" />
-			<param name="Kv_x" value="5.0" />
-			<param name="Kv_y" value="5.0" />
-			<param name="Kv_z" value="10.0" />
-			<!--Use ground truth pose from gazebo plugin-->
-			<param name="use_groudtruth" value="true" />
-		</node>
 
 		<!-- Transform Publisher -->
 		<node pkg="tf" type="static_transform_publisher" name="uav_world_publisher" args="$(arg x) $(arg y) $(arg z) $(arg Y) $(arg P) $(arg R) world uav$(arg ID)_world 100" />
@@ -296,7 +241,11 @@
 	<!-- UAV4 -->
 	<group ns="uav4">
 		<!-- move uav node -->
-		<!-- <node name="move_uav_global_node_0" pkg="move_uav" type="move_uav_global_node" output="screen" /> -->
+		<node pkg="move_uav" type="move_uav_global_node" name="move_uav_global" output="screen">
+			<param name="init_pos_latitude" value="25.017" />
+			<param name="init_pos_longitude" value="121.5396" />
+			<param name="init_pos_altitude" value="34" />
+		</node>
 
 		<!-- MAVROS and vehicle configs -->
 		<arg name="ID" value="4" />
@@ -333,29 +282,6 @@
 			<arg name="tgt_component" value="1" />
 		</include>
 
-		<!-- Geometric Controller -->
-		<node pkg="geometric_controller" type="geometric_controller_node" name="geometric_controller" output="screen">
-			<remap from="command/bodyrate_command" to="mavros/setpoint_raw/attitude" />
-			<param name="ctrl_mode" value="2" />
-			<param name="enable_sim" value="true" />
-			<param name="enable_gazebo_state" value="true" />
-			<param name="max_acc" value="10.0" />
-			<param name="init_pos_x" value="0" />
-			<param name="init_pos_y" value="0" />
-			<param name="init_pos_z" value="34" />
-			<!--Params specific for Iris copter-->
-			<param name="attctrl_constant" value="0.3" />
-			<param name="normalizedthrust_constant" value="0.06" />
-			<param name="normalizedthrust_offset" value="0.1" />
-			<param name="Kp_x" value="10.0" />
-			<param name="Kp_y" value="10.0" />
-			<param name="Kp_z" value="20.0" />
-			<param name="Kv_x" value="5.0" />
-			<param name="Kv_y" value="5.0" />
-			<param name="Kv_z" value="10.0" />
-			<!--Use ground truth pose from gazebo plugin-->
-			<param name="use_groudtruth" value="true" />
-		</node>
 
 		<!-- Transform Publisher -->
 		<node pkg="tf" type="static_transform_publisher" name="uav_world_publisher" args="$(arg x) $(arg y) $(arg z) $(arg Y) $(arg P) $(arg R) world uav$(arg ID)_world 100" />
@@ -364,7 +290,11 @@
 	<!-- UAV5 -->
 	<group ns="uav5">
 		<!-- move uav node -->
-		<!-- <node name="move_uav_global_node_0" pkg="move_uav" type="move_uav_global_node" output="screen" /> -->
+		<node pkg="move_uav" type="move_uav_global_node" name="move_uav_global" output="screen">
+			<param name="init_pos_latitude" value="25.017" />
+			<param name="init_pos_longitude" value="121.5396" />
+			<param name="init_pos_altitude" value="35" />
+		</node>
 
 		<!-- MAVROS and vehicle configs -->
 		<arg name="ID" value="5" />
@@ -401,29 +331,6 @@
 			<arg name="tgt_component" value="1" />
 		</include>
 
-		<!-- Geometric Controller -->
-		<node pkg="geometric_controller" type="geometric_controller_node" name="geometric_controller" output="screen">
-			<remap from="command/bodyrate_command" to="mavros/setpoint_raw/attitude" />
-			<param name="ctrl_mode" value="2" />
-			<param name="enable_sim" value="true" />
-			<param name="enable_gazebo_state" value="true" />
-			<param name="max_acc" value="10.0" />
-			<param name="init_pos_x" value="0" />
-			<param name="init_pos_y" value="0" />
-			<param name="init_pos_z" value="35" />
-			<!--Params specific for Iris copter-->
-			<param name="attctrl_constant" value="0.3" />
-			<param name="normalizedthrust_constant" value="0.06" />
-			<param name="normalizedthrust_offset" value="0.1" />
-			<param name="Kp_x" value="10.0" />
-			<param name="Kp_y" value="10.0" />
-			<param name="Kp_z" value="20.0" />
-			<param name="Kv_x" value="5.0" />
-			<param name="Kv_y" value="5.0" />
-			<param name="Kv_z" value="10.0" />
-			<!--Use ground truth pose from gazebo plugin-->
-			<param name="use_groudtruth" value="true" />
-		</node>
 
 		<!-- Transform Publisher -->
 		<node pkg="tf" type="static_transform_publisher" name="uav_world_publisher" args="$(arg x) $(arg y) $(arg z) $(arg Y) $(arg P) $(arg R) world uav$(arg ID)_world 100" />
@@ -432,7 +339,11 @@
 	<!-- UAV6 -->
 	<group ns="uav6">
 		<!-- move uav node -->
-		<!-- <node name="move_uav_global_node_0" pkg="move_uav" type="move_uav_global_node" output="screen" /> -->
+		<node pkg="move_uav" type="move_uav_global_node" name="move_uav_global" output="screen">
+			<param name="init_pos_latitude" value="25.017" />
+			<param name="init_pos_longitude" value="121.5396" />
+			<param name="init_pos_altitude" value="36" />
+		</node>
 
 		<!-- MAVROS and vehicle configs -->
 		<arg name="ID" value="6" />
@@ -469,29 +380,6 @@
 			<arg name="tgt_component" value="1" />
 		</include>
 
-		<!-- Geometric Controller -->
-		<node pkg="geometric_controller" type="geometric_controller_node" name="geometric_controller" output="screen">
-			<remap from="command/bodyrate_command" to="mavros/setpoint_raw/attitude" />
-			<param name="ctrl_mode" value="2" />
-			<param name="enable_sim" value="true" />
-			<param name="enable_gazebo_state" value="true" />
-			<param name="max_acc" value="10.0" />
-			<param name="init_pos_x" value="0" />
-			<param name="init_pos_y" value="0" />
-			<param name="init_pos_z" value="36" />
-			<!--Params specific for Iris copter-->
-			<param name="attctrl_constant" value="0.3" />
-			<param name="normalizedthrust_constant" value="0.06" />
-			<param name="normalizedthrust_offset" value="0.1" />
-			<param name="Kp_x" value="10.0" />
-			<param name="Kp_y" value="10.0" />
-			<param name="Kp_z" value="20.0" />
-			<param name="Kv_x" value="5.0" />
-			<param name="Kv_y" value="5.0" />
-			<param name="Kv_z" value="10.0" />
-			<!--Use ground truth pose from gazebo plugin-->
-			<param name="use_groudtruth" value="true" />
-		</node>
 
 		<!-- Transform Publisher -->
 		<node pkg="tf" type="static_transform_publisher" name="uav_world_publisher" args="$(arg x) $(arg y) $(arg z) $(arg Y) $(arg P) $(arg R) world uav$(arg ID)_world 100" />
@@ -500,7 +388,11 @@
 	<!-- UAV7 -->
 	<group ns="uav7">
 		<!-- move uav node -->
-		<!-- <node name="move_uav_global_node_0" pkg="move_uav" type="move_uav_global_node" output="screen" /> -->
+		<node pkg="move_uav" type="move_uav_global_node" name="move_uav_global" output="screen">
+			<param name="init_pos_latitude" value="25.017" />
+			<param name="init_pos_longitude" value="121.5396" />
+			<param name="init_pos_altitude" value="37" />
+		</node>
 
 		<!-- MAVROS and vehicle configs -->
 		<arg name="ID" value="7" />
@@ -537,29 +429,6 @@
 			<arg name="tgt_component" value="1" />
 		</include>
 
-		<!-- Geometric Controller -->
-		<node pkg="geometric_controller" type="geometric_controller_node" name="geometric_controller" output="screen">
-			<remap from="command/bodyrate_command" to="mavros/setpoint_raw/attitude" />
-			<param name="ctrl_mode" value="2" />
-			<param name="enable_sim" value="true" />
-			<param name="enable_gazebo_state" value="true" />
-			<param name="max_acc" value="10.0" />
-			<param name="init_pos_x" value="0" />
-			<param name="init_pos_y" value="0" />
-			<param name="init_pos_z" value="37" />
-			<!--Params specific for Iris copter-->
-			<param name="attctrl_constant" value="0.3" />
-			<param name="normalizedthrust_constant" value="0.06" />
-			<param name="normalizedthrust_offset" value="0.1" />
-			<param name="Kp_x" value="10.0" />
-			<param name="Kp_y" value="10.0" />
-			<param name="Kp_z" value="20.0" />
-			<param name="Kv_x" value="5.0" />
-			<param name="Kv_y" value="5.0" />
-			<param name="Kv_z" value="10.0" />
-			<!--Use ground truth pose from gazebo plugin-->
-			<param name="use_groudtruth" value="true" />
-		</node>
 
 		<!-- Transform Publisher -->
 		<node pkg="tf" type="static_transform_publisher" name="uav_world_publisher" args="$(arg x) $(arg y) $(arg z) $(arg Y) $(arg P) $(arg R) world uav$(arg ID)_world 100" />
@@ -568,7 +437,11 @@
 	<!-- UAV8 -->
 	<group ns="uav8">
 		<!-- move uav node -->
-		<!-- <node name="move_uav_global_node_0" pkg="move_uav" type="move_uav_global_node" output="screen" /> -->
+		<node pkg="move_uav" type="move_uav_global_node" name="move_uav_global" output="screen">
+			<param name="init_pos_latitude" value="25.017" />
+			<param name="init_pos_longitude" value="121.5396" />
+			<param name="init_pos_altitude" value="38" />
+		</node>
 
 		<!-- MAVROS and vehicle configs -->
 		<arg name="ID" value="8" />
@@ -605,30 +478,6 @@
 			<arg name="tgt_component" value="1" />
 		</include>
 
-		<!-- Geometric Controller -->
-		<node pkg="geometric_controller" type="geometric_controller_node" name="geometric_controller" output="screen">
-			<remap from="command/bodyrate_command" to="mavros/setpoint_raw/attitude" />
-			<param name="ctrl_mode" value="2" />
-			<param name="enable_sim" value="true" />
-			<param name="enable_gazebo_state" value="true" />
-			<param name="max_acc" value="10.0" />
-			<param name="init_pos_x" value="0" />
-			<param name="init_pos_y" value="1" />
-			<param name="init_pos_z" value="37" />
-			<!--Params specific for Iris copter-->
-			<param name="attctrl_constant" value="0.3" />
-			<param name="normalizedthrust_constant" value="0.06" />
-			<param name="normalizedthrust_offset" value="0.1" />
-			<param name="Kp_x" value="10.0" />
-			<param name="Kp_y" value="10.0" />
-			<param name="Kp_z" value="20.0" />
-			<param name="Kv_x" value="5.0" />
-			<param name="Kv_y" value="5.0" />
-			<param name="Kv_z" value="10.0" />
-			<!--Use ground truth pose from gazebo plugin-->
-			<param name="use_groudtruth" value="true" />
-		</node>
-
 		<!-- Transform Publisher -->
 		<node pkg="tf" type="static_transform_publisher" name="uav_world_publisher" args="$(arg x) $(arg y) $(arg z) $(arg Y) $(arg P) $(arg R) world uav$(arg ID)_world 100" />
 	</group>
@@ -636,7 +485,11 @@
 	<!-- UAV9 -->
 	<group ns="uav9">
 		<!-- move uav node -->
-		<!-- <node name="move_uav_global_node_0" pkg="move_uav" type="move_uav_global_node" output="screen" /> -->
+		<node pkg="move_uav" type="move_uav_global_node" name="move_uav_global" output="screen">
+			<param name="init_pos_latitude" value="25.017" />
+			<param name="init_pos_longitude" value="121.5396" />
+			<param name="init_pos_altitude" value="39" />
+		</node>
 
 		<!-- MAVROS and vehicle configs -->
 		<arg name="ID" value="9" />
@@ -672,30 +525,6 @@
 			<arg name="tgt_system" value="$(eval 1 + arg('ID'))" />
 			<arg name="tgt_component" value="1" />
 		</include>
-
-		<!-- Geometric Controller -->
-		<node pkg="geometric_controller" type="geometric_controller_node" name="geometric_controller" output="screen">
-			<remap from="command/bodyrate_command" to="mavros/setpoint_raw/attitude" />
-			<param name="ctrl_mode" value="2" />
-			<param name="enable_sim" value="true" />
-			<param name="enable_gazebo_state" value="true" />
-			<param name="max_acc" value="10.0" />
-			<param name="init_pos_x" value="0" />
-			<param name="init_pos_y" value="2" />
-			<param name="init_pos_z" value="37" />
-			<!--Params specific for Iris copter-->
-			<param name="attctrl_constant" value="0.3" />
-			<param name="normalizedthrust_constant" value="0.06" />
-			<param name="normalizedthrust_offset" value="0.1" />
-			<param name="Kp_x" value="10.0" />
-			<param name="Kp_y" value="10.0" />
-			<param name="Kp_z" value="20.0" />
-			<param name="Kv_x" value="5.0" />
-			<param name="Kv_y" value="5.0" />
-			<param name="Kv_z" value="10.0" />
-			<!--Use ground truth pose from gazebo plugin-->
-			<param name="use_groudtruth" value="true" />
-		</node>
 
 		<!-- Transform Publisher -->
 		<node pkg="tf" type="static_transform_publisher" name="uav_world_publisher" args="$(arg x) $(arg y) $(arg z) $(arg Y) $(arg P) $(arg R) world uav$(arg ID)_world 100" />

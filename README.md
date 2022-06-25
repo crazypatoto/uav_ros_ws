@@ -1,55 +1,26 @@
 # UAV Simulation ROS Worksapce
 
 ## Prerequisites
-- Install PX4 Autopilot Firmare (v1.12.3)
+1. Install PX4 Autopilot Firmare (v1.12.3)
 ```bash
 git clone -b v1.12.3 https://github.com/crazypatoto/PX4-Autopilot.git --recursive
 bash ./PX4-Autopilot/Tools/setup/ubuntu.sh
+git checkout stable
+make px4_sitl gazebo
+```
+2. Install Dependencies
+```bash
+sudo apt-get install libeigen3-dev
+```
+
+3. Setup PX4_AUTOPILOT_DIR in setup_all.bash
+```bash
+gedit setup_all.bash
 ```
 
 ## Start the simulation
 
-1. Go into PX4-Autopilot directory:
+1. Source the environment:
 ```bash
-cd $PX4_Autopilot_Directory
-```
-2. Source the evnironment:
-```bash
-source Tools/setup_gazebo.bash $(pwd) $(pwd)/build/px4_sitl_default
-export ROS_PACKAGE_PATH=$ROS_PACKAGE_PATH:$(pwd):$(pwd)/Tools/sitl_gazebo
-```
-3. Run the launch file:
-```bash
-roslaunch px4 custom_single.launch
-```
-4. Go into current workspace:
-```bash
-cd $ROS_WORKSPACE_DIRECTORY
-```
-5. Setup ROS environment
-```bash
-source devel/setup.bash
-```
-
-6. Run offboard control node:
-```bash
-roslaunch move_uav single_uav.launch 
-```
-
-7. Run keyboard control node:
-```bash
-rosrun offboard_pkg keyboard_move_node 
-```
-
-## Alternative Method
-1. Go into PX4-Autopilot directory:
-```bash
-source ~/uav_ros_ws/devel/setup.bash 
-source Tools/setup_gazebo.bash $(pwd) $(pwd)/build/px4_sitl_default
-export ROS_PACKAGE_PATH=$ROS_PACKAGE_PATH:$(pwd)
-export ROS_PACKAGE_PATH=$ROS_PACKAGE_PATH:$(pwd)/Tools/sitl_gazebo
-```
-2. Run
-```bash
-roslaunch move_uav single_uav.launch 
+source setup_all.bash
 ```

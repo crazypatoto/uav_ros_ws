@@ -20,6 +20,9 @@ geometry_msgs::PoseStamped current_pose;
 geometry_msgs::PoseStamped global_setpoint;
 geometry_msgs::PoseStamped local_setpoint;
 geographic_msgs::GeoPose global_home;
+double initTargetLat;
+double initTargetLon;
+double initTargetAlt;
 
 void state_cb(const mavros_msgs::State::ConstPtr &msg)
 {
@@ -39,16 +42,17 @@ void global_pos_cb(const sensor_msgs::NavSatFix::ConstPtr &msg)
         return;
     global_home.position.altitude = msg->altitude;
     global_home.position.latitude = msg->latitude;
-    global_home.position.longitude = msg->longitude;    
+    global_home.position.longitude = msg->longitude;
     home_pose_recived = true;
     ROS_INFO("Home Pose Set!: %f, %f, %f", global_home.position.latitude, global_home.position.longitude, global_home.position.altitude);
 }
 
 int main(int argc, char **argv)
 {
-    ros::init(argc, argv, "move_uav_node");
+    ros::init(argc, argv, "move_uav");
 
     ros::NodeHandle nh;
+    ros::NodeHandle nh_private("~");
     ros::ServiceClient arming_client = nh.serviceClient<mavros_msgs::CommandBool>("mavros/cmd/arming");
     ros::ServiceClient set_mode_client = nh.serviceClient<mavros_msgs::SetMode>("mavros/set_mode");
 
@@ -71,6 +75,10 @@ int main(int argc, char **argv)
     std::string current_frame = nh.getNamespace() + "_world";
     current_frame.erase(remove(current_frame.begin(), current_frame.end(), '/'), current_frame.end()); // remove / from string
 
+    nh_private.param<double>("init_pos_latitude", initTargetLat, 0.0);
+    nh_private.param<double>("init_pos_longitude", initTargetLon, 0.0);
+    nh_private.param<double>("init_pos_altitude", initTargetAlt, 2.0);
+
     // wait for FCU connection
     while (ros::ok() && !current_state.connected)
     {
@@ -87,9 +95,13 @@ int main(int argc, char **argv)
 
     geographic_msgs::GeoPoseStamped init_set_point;
     ROS_INFO("Seting %f, %f", global_home.position.latitude, global_home.position.longitude);
-    init_set_point.pose.position.latitude = global_home.position.latitude;
-    init_set_point.pose.position.longitude = global_home.position.longitude;
-    init_set_point.pose.position.altitude = 19;
+    // init_set_point.pose.position.latitude = global_home.position.latitude;
+    // init_set_point.pose.position.longitude = global_home.position.longitude;
+    // init_set_point.pose.position.altitude = 19;
+
+    init_set_point.pose.position.latitude = initTargetLat;
+    init_set_point.pose.position.longitude = initTargetLon;
+    init_set_point.pose.position.altitude = initTargetAlt;
     init_set_point.pose.orientation = current_pose.pose.orientation;
 
     // send a few setpoints before starting
