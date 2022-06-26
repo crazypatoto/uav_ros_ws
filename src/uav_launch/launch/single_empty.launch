@@ -5,7 +5,7 @@
 	<!-- vehicle model and world -->
 	<arg name="est" default="ekf2" />
 	<arg name="vehicle" default="iris" />
-	<arg name="world" default="$(find uav_gazebo)/world/empty.world" />
+	<arg name="world" default="$(find uav_gazebo)/worlds/empty.world" />
 	<!-- gazebo configs -->
 	<arg name="gui" default="true" />
 	<arg name="debug" default="false" />
@@ -61,8 +61,7 @@
 		<node pkg="tf" type="static_transform_publisher" name="uav_world_publisher" args="$(arg x) $(arg y) $(arg z) $(arg Y) $(arg P) $(arg R) world uav$(arg ID)_world 100" />
 	</group>
 
-</launch>
-<!-- to add more UAVs (up to 10):
+</launch><!-- to add more UAVs (up to 10):
 Increase the id
 Change the name space
 Set the FCU to default="udp://:14540+id@localhost:14550+id"

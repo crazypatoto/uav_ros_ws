@@ -28,6 +28,8 @@
           <param name="Kv_x" value="5.0"/>
           <param name="Kv_y" value="5.0"/>
           <param name="Kv_z" value="10.0"/>
+          <!--Use ground truth pose from gazebo plugin-->
+          <param name="use_groudtruth" value="true" />
   </node>
 
   <node pkg="trajectory_publisher" type="trajectory_publisher" name="trajectory_publisher" output="screen">

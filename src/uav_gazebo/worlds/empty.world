@@ -1,5 +1,7 @@
 <sdf version='1.7'>
   <world name='default'>
+    <!-- A gazebo links attacher -->
+    <plugin name="ros_link_attacher_plugin" filename="libgazebo_ros_link_attacher.so" />
     <light name='sun' type='directional'>
       <cast_shadows>1</cast_shadows>
       <pose>0 0 10 0 -0 0</pose>
@@ -18,6 +20,9 @@
         <falloff>0</falloff>
       </spot>
     </light>
+    <include>
+      <uri>model://test_box</uri>
+    </include>
     <model name='ground_plane'>
       <static>1</static>
       <link name='link'>
@@ -86,7 +91,7 @@
       <longitude_deg>0</longitude_deg>
       <elevation>0</elevation>
       <heading_deg>0</heading_deg>
-    </spherical_coordinates>    
+    </spherical_coordinates>
     <gui fullscreen='0'>
       <camera name='user_camera'>
         <pose>5 -5 2 0 0.275643 2.35619</pose>

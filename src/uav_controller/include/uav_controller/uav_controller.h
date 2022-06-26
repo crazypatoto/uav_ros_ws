@@ -11,9 +11,12 @@
 #include <mavros_msgs/SetMode.h>
 #include <mavros_msgs/AttitudeTarget.h>
 #include <geometry_msgs/Pose.h>
+#include <nav_msgs/Path.h>
 #include <nav_msgs/Odometry.h>
 
 #include <Eigen/Dense>
+
+#include "uav_controller/common.h"
 
 using namespace std;
 using namespace Eigen;
@@ -44,6 +47,9 @@ private:
     // Publishers
     ros::Publisher companionStatusPub_;
     ros::Publisher bodyRatePub_;
+    ros::Publisher posePub_;
+    ros::Publisher referencePosePub_;
+    ros::Publisher posehistoryPub_;
 
     // Service Clients
     ros::ServiceClient armingClient_;
@@ -60,10 +66,28 @@ private:
     mavros_msgs::State currentMavState_;
     mavros_msgs::SetMode mavSetMode_;
     mavros_msgs::CommandBool mavArmCommand_;
-
-    ros::Time lastRequest_;
     geometry_msgs::Pose homePose_;
+    ros::Time lastRequest_;
+    Eigen::Vector3d desired_acc;
+    Eigen::Vector3d targetPos_, targetVel_, targetAcc_;
+    Eigen::Vector3d mavPos_, mavVel_, mavRate_;
+    Eigen::Vector4d mavAtt_;
+    Eigen::Vector3d g_;
+    Eigen::Vector3d drag_;
+    Eigen::Vector3d Kpos_, Kvel_;
+    Eigen::Vector4d q_des;
+    Eigen::Vector4d cmdBodyRate_; //{wx, wy, wz, Thrust}
     bool homePoseReceived = false;
+    bool velocity_yaw_;
+    double initTargetPos_z_;
+    double targetYaw_;
+    double dx_, dy_, dz_;
+    double max_fb_acc_;
+    double Kpos_x_, Kpos_y_, Kpos_z_, Kvel_x_, Kvel_y_, Kvel_z_;
+    double attctrl_tau_;
+    double norm_thrust_const_, norm_thrust_offset_;
+    std::vector<geometry_msgs::PoseStamped> posehistory_vector_;
+    int posehistory_window_;
 
     // Callbacks
     void mavstateCallback(const mavros_msgs::State::ConstPtr &msg);
@@ -73,11 +97,20 @@ private:
 
     // Functions
     void publishCompanionState();
+    Eigen::Vector3d controlPosition(const Eigen::Vector3d &target_pos, const Eigen::Vector3d &target_vel, const Eigen::Vector3d &target_acc);
+    Eigen::Vector4d acc2quaternion(const Eigen::Vector3d &vector_acc, const double &yaw);
+    void computeBodyRateCmd(Eigen::Vector4d &bodyrate_cmd, const Eigen::Vector3d &a_des);
+    Eigen::Vector3d poscontroller(const Eigen::Vector3d &pos_error, const Eigen::Vector3d &vel_error);
+    Eigen::Vector4d geometric_attcontroller(const Eigen::Vector4d &ref_att, const Eigen::Vector3d &ref_acc, Eigen::Vector4d &curr_att);
+    void pubReferencePose(const Eigen::Vector3d &target_position, const Eigen::Vector4d &target_attitude);
+    void pubRateCommands(const Eigen::Vector4d &cmd, const Eigen::Vector4d &target_attitude);
+    void appendPoseHistory();
+    void pubPoseHistory();
 
     enum FlightState
     {
         WAITING_FCU_CONNECTION = 0,
-        WAITING_HOME_POSE = 1,        
+        WAITING_HOME_POSE = 1,
         FLYING = 2,
         LANDING = 3,
         LANDED = 4
