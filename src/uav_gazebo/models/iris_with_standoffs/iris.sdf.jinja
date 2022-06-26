@@ -16,11 +16,91 @@
         </inertia>
       </inertial>
       <collision name='base_link_inertia_collision'>
-        <pose>0 0 -0.08 0 0 0</pose>
+        <pose>0 0 0 0 0 0</pose>
         <geometry>
           <box>
-            <size>0.47 0.47 0.23</size>
+            <size>0.47 0.47 0.08</size>
           </box>
+        </geometry>
+        <surface>
+          <contact>
+            <ode>
+              <min_depth>0.001</min_depth>
+              <max_vel>0</max_vel>
+            </ode>
+          </contact>
+          <friction>
+            <ode/>
+          </friction>
+        </surface>
+      </collision>
+      <collision name='base_link_front_left_leg_collision'>
+        <pose>0.123 0.22 -0.11 0 0 0</pose>
+        <geometry>
+           <cylinder>	
+            <radius>0.005</radius>	
+            <length>0.17</length>	
+          </cylinder>	
+        </geometry>
+        <surface>
+          <contact>
+            <ode>
+              <min_depth>0.001</min_depth>
+              <max_vel>0</max_vel>
+            </ode>
+          </contact>
+          <friction>
+            <ode/>
+          </friction>
+        </surface>
+      </collision>
+      <collision name='base_link_front_right_leg_collision'>
+        <pose>0.123 -0.22 -0.11 0 0 0</pose>
+        <geometry>
+           <cylinder>	
+            <radius>0.005</radius>	
+            <length>0.17</length>	
+          </cylinder>	
+        </geometry>
+        <surface>
+          <contact>
+            <ode>
+              <min_depth>0.001</min_depth>
+              <max_vel>0</max_vel>
+            </ode>
+          </contact>
+          <friction>
+            <ode/>
+          </friction>
+        </surface>
+      </collision>
+      <collision name='base_link_rear_left_leg_collision'>
+        <pose>-0.140 0.21 -0.11 0 0 0</pose>
+        <geometry>
+           <cylinder>	
+            <radius>0.005</radius>	
+            <length>0.17</length>	
+          </cylinder>	
+        </geometry>
+        <surface>
+          <contact>
+            <ode>
+              <min_depth>0.001</min_depth>
+              <max_vel>0</max_vel>
+            </ode>
+          </contact>
+          <friction>
+            <ode/>
+          </friction>
+        </surface>
+      </collision>
+      <collision name='base_link_rear_right_leg_collision'>
+        <pose>-0.140 -0.21 -0.11 0 0 0</pose>
+        <geometry>
+           <cylinder>	
+            <radius>0.005</radius>	
+            <length>0.17</length>	
+          </cylinder>	
         </geometry>
         <surface>
           <contact>

@@ -3,9 +3,9 @@
         {
             "name": "Linux",
             "includePath": [
-                "${workspaceFolder}/**",
                 "/opt/ros/noetic/include/**",
-                "/usr/include/**"
+                "/usr/include/**",
+                "${workspaceFolder}/**"
             ],
             "defines": [],
             "compilerPath": "/opt/gcc-arm-none-eabi-9-2020-q2-update/bin/arm-none-eabi-gcc",
