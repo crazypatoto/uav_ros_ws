@@ -17,6 +17,8 @@
 #include <Eigen/Dense>
 
 #include "uav_controller/common.h"
+#include "uav_controller/cubicpolytraj.h"
+#include "uav_controller/quinticpolytraj.h"
 
 using namespace std;
 using namespace Eigen;
@@ -43,6 +45,7 @@ private:
     // Subscribers
     ros::Subscriber mavStateSub_;
     ros::Subscriber groundTruthSub_;
+    ros::Subscriber waypointSub_;
 
     // Publishers
     ros::Publisher companionStatusPub_;
@@ -50,6 +53,7 @@ private:
     ros::Publisher posePub_;
     ros::Publisher referencePosePub_;
     ros::Publisher posehistoryPub_;
+    ros::Publisher referenceTrajPub_;
 
     // Service Clients
     ros::ServiceClient armingClient_;
@@ -67,9 +71,10 @@ private:
     mavros_msgs::SetMode mavSetMode_;
     mavros_msgs::CommandBool mavArmCommand_;
     geometry_msgs::Pose homePose_;
-    ros::Time lastRequest_;
+    ros::Time lastCommandRequest_, lastTargetRequest_;
     Eigen::Vector3d desired_acc;
     Eigen::Vector3d targetPos_, targetVel_, targetAcc_;
+    Eigen::Vector3d targetPos_prev_, targetVel_prev_;
     Eigen::Vector3d mavPos_, mavVel_, mavRate_;
     Eigen::Vector4d mavAtt_;
     Eigen::Vector3d g_;
@@ -89,9 +94,14 @@ private:
     std::vector<geometry_msgs::PoseStamped> posehistory_vector_;
     int posehistory_window_;
 
+    QuinticPolyTraj3D *currentTraj_;
+    double max_average_speed_;
+    ros::Time trajGeneratedTime;
+
     // Callbacks
     void mavstateCallback(const mavros_msgs::State::ConstPtr &msg);
     void groundTruthCallback(const nav_msgs::Odometry &msg);
+    void waypointCallback(const geometry_msgs::PoseStamped &msg);
     void statusLoopCallback(const ros::TimerEvent &event);
     void controlLoopCallback(const ros::TimerEvent &event);
 
@@ -106,6 +116,7 @@ private:
     void pubRateCommands(const Eigen::Vector4d &cmd, const Eigen::Vector4d &target_attitude);
     void appendPoseHistory();
     void pubPoseHistory();
+    void pubRefTraj();
 
     enum FlightState
     {

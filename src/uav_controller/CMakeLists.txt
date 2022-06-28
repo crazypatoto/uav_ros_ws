@@ -130,6 +130,8 @@ include_directories(
 ## Declare a C++ library
 add_library(${PROJECT_NAME}
   src/uav_controller.cpp
+  src/cubicpolytraj.cpp
+  src/quinticpolytraj.cpp
 )
 
 ## Add cmake target dependencies of the library

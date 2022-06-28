@@ -20,9 +20,6 @@
         <falloff>0</falloff>
       </spot>
     </light>
-    <include>
-      <uri>model://test_box</uri>
-    </include>
     <model name='ground_plane'>
       <static>1</static>
       <link name='link'>

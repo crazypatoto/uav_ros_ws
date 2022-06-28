@@ -29,12 +29,13 @@
           <param name="Kv_y" value="5.0"/>
           <param name="Kv_z" value="10.0"/>
           <!--Use ground truth pose from gazebo plugin-->
-          <param name="use_groudtruth" value="true" />
+          <param name="use_groudtruth" value="false" />
+          <param name="velocity_yaw" value="true" />
   </node>
 
   <node pkg="trajectory_publisher" type="trajectory_publisher" name="trajectory_publisher" output="screen">
         <param name="trajectory_type" value="1" />
-        <param name="shape_omega" value="1.2" />
+        <param name="shape_omega" value="0.6" />
         <param name="initpos_z" value="2.0" />
         <param name="reference_type" value="2" />
   </node>

@@ -8,6 +8,7 @@ UAVController::UAVController(const ros::NodeHandle &nh, const ros::NodeHandle &n
     // Initialize subscribers
     mavStateSub_ = nh_.subscribe("mavros/state", 1, &UAVController::mavstateCallback, this, ros::TransportHints().tcpNoDelay());
     groundTruthSub_ = nh_.subscribe("ground_truth/state", 1, &UAVController::groundTruthCallback, this, ros::TransportHints().tcpNoDelay());
+    waypointSub_ = nh_.subscribe("uav_controller/target_waypoint", 1, &UAVController::waypointCallback, this, ros::TransportHints().tcpNoDelay());
 
     // Initialize publishers
     companionStatusPub_ = nh_.advertise<mavros_msgs::CompanionProcessStatus>("mavros/companion_process/status", 1);
@@ -15,6 +16,7 @@ UAVController::UAVController(const ros::NodeHandle &nh, const ros::NodeHandle &n
     posePub_ = nh_.advertise<geometry_msgs::PoseStamped>("uav_controller/pose", 1);
     referencePosePub_ = nh_.advertise<geometry_msgs::PoseStamped>("uav_controller/reference/pose", 1);
     posehistoryPub_ = nh_.advertise<nav_msgs::Path>("uav_controller/path", 10);
+    referenceTrajPub_ = nh_.advertise<nav_msgs::Path>("uav_controller/reference/trajectory", 10);
 
     // Initialize service clients
     armingClient_ = nh_.serviceClient<mavros_msgs::CommandBool>("mavros/cmd/arming");
@@ -25,22 +27,22 @@ UAVController::UAVController(const ros::NodeHandle &nh, const ros::NodeHandle &n
     controlLoopTimer_ = nh_.createTimer(ros::Duration(0.01), &UAVController::controlLoopCallback, this); // Define timer for constant loop rate
 
     // Initialize Parameters
-    nh_private_.param<bool>("velocity_yaw", velocity_yaw_, true);
+    nh_private_.param<bool>("velocity_yaw", velocity_yaw_, false);
     nh_private_.param<double>("target_yaw", targetYaw_, 0.0);
     nh_private_.param<double>("initTargetPos_z", initTargetPos_z_, 2);
     nh_private_.param<double>("drag_dx", dx_, 0.0);
     nh_private_.param<double>("drag_dy", dy_, 0.0);
     nh_private_.param<double>("drag_dz", dz_, 0.0);
-    nh_private_.param<double>("max_acc", max_fb_acc_, 10.0);
-    nh_private_.param<double>("Kp_x", Kpos_x_, 8.0);
-    nh_private_.param<double>("Kp_y", Kpos_y_, 8.0);
-    nh_private_.param<double>("Kp_z", Kpos_z_, 10.0);
+    nh_private_.param<double>("max_acc", max_fb_acc_, 8.0);
+    nh_private_.param<double>("Kp_x", Kpos_x_, 5.0);
+    nh_private_.param<double>("Kp_y", Kpos_y_, 5.0);
+    nh_private_.param<double>("Kp_z", Kpos_z_, 5.0);
     nh_private_.param<double>("Kv_x", Kvel_x_, 1.5);
     nh_private_.param<double>("Kv_y", Kvel_y_, 1.5);
     nh_private_.param<double>("Kv_z", Kvel_z_, 3.3);
     nh_private_.param<double>("attctrl_constant", attctrl_tau_, 0.1);
-    nh_private_.param<double>("normalizedthrust_constant", norm_thrust_const_, 0.06); // 1 / max acceleration
-    nh_private_.param<double>("normalizedthrust_offset", norm_thrust_offset_, 0.1);   // 1 / max acceleration
+    nh_private_.param<double>("normalizedthrust_constant", norm_thrust_const_, 0.063); // 1 / max acceleration
+    nh_private_.param<double>("normalizedthrust_offset", norm_thrust_offset_, 0.1);    // 1 / max acceleration
     nh_private_.param<int>("posehistory_window", posehistory_window_, 1000);
 
     targetPos_ << 0, 0, initTargetPos_z_; // Initial Position
@@ -72,7 +74,6 @@ void UAVController::groundTruthCallback(const nav_msgs::Odometry &msg)
     poseMsg.header.stamp = msg.header.stamp;
     poseMsg.pose = msg.pose.pose;
     posePub_.publish(poseMsg);
-
     mavPos_ = toEigen(msg.pose.pose.position);
     mavAtt_(0) = msg.pose.pose.orientation.w;
     mavAtt_(1) = msg.pose.pose.orientation.x;
@@ -83,6 +84,22 @@ void UAVController::groundTruthCallback(const nav_msgs::Odometry &msg)
     mavRate_ = toEigen(msg.twist.twist.angular);
 }
 
+void UAVController::waypointCallback(const geometry_msgs::PoseStamped &msg)
+{
+    Eigen::Vector3d newTargetPos, d;
+    double distance;
+    newTargetPos << msg.pose.position.x, msg.pose.position.y, msg.pose.position.z;
+    d = newTargetPos - mavPos_;
+    ROS_INFO_STREAM("targetPos_: " << newTargetPos);
+    ROS_INFO_STREAM("mavPos_: " << mavPos_);
+    distance = pow(d(0), 2) + pow(d(1), 2) + pow(d(2), 2);
+    distance = sqrt(distance);
+    ROS_INFO("distance = %.3f", distance / max_average_speed_);
+
+    currentTraj_ = new QuinticPolyTraj3D(mavPos_, newTargetPos, mavVel_, sqrt(3.0 * distance / max_fb_acc_));
+    trajGeneratedTime = ros::Time::now();
+}
+
 void UAVController::statusLoopCallback(const ros::TimerEvent &event)
 {
     // Enable OffBoard mode and arm automatically
@@ -90,27 +107,28 @@ void UAVController::statusLoopCallback(const ros::TimerEvent &event)
     {
         mavArmCommand_.request.value = true;
         mavSetMode_.request.custom_mode = "OFFBOARD";
-        if (currentMavState_.mode != "OFFBOARD" && (ros::Time::now() - lastRequest_ > ros::Duration(5.0)))
+        if (currentMavState_.mode != "OFFBOARD" && (ros::Time::now() - lastCommandRequest_ > ros::Duration(5.0)))
         {
             if (setModeClient_.call(mavSetMode_) && mavSetMode_.response.mode_sent)
             {
                 ROS_INFO("Offboard enabled");
             }
-            lastRequest_ = ros::Time::now();
+            lastCommandRequest_ = ros::Time::now();
         }
         else
         {
-            if (!currentMavState_.armed && (ros::Time::now() - lastRequest_ > ros::Duration(5.0)))
+            if (!currentMavState_.armed && (ros::Time::now() - lastCommandRequest_ > ros::Duration(5.0)))
             {
                 if (armingClient_.call(mavArmCommand_) && mavArmCommand_.response.success)
                 {
                     ROS_INFO("Vehicle armed");
                 }
-                lastRequest_ = ros::Time::now();
+                lastCommandRequest_ = ros::Time::now();
             }
         }
     }
     publishCompanionState();
+    pubRefTraj();
 }
 
 void UAVController::controlLoopCallback(const ros::TimerEvent &event)
@@ -132,6 +150,12 @@ void UAVController::controlLoopCallback(const ros::TimerEvent &event)
         companionState_ = MAV_STATE::MAV_STATE_ACTIVE;
         break;
     case FLYING:
+        if (currentTraj_ != nullptr)
+        {
+            targetPos_ = currentTraj_->getPosition((ros::Time::now() - trajGeneratedTime).toSec());
+            targetVel_ = currentTraj_->getVelocity((ros::Time::now() - trajGeneratedTime).toSec());
+            targetAcc_ = currentTraj_->getAcceleration((ros::Time::now() - trajGeneratedTime).toSec());
+        }
         desired_acc = controlPosition(targetPos_, targetVel_, targetAcc_);
         computeBodyRateCmd(cmdBodyRate_, desired_acc);
         pubReferencePose(targetPos_, q_des);
@@ -311,4 +335,32 @@ void UAVController::pubPoseHistory()
     msg.poses = posehistory_vector_;
 
     posehistoryPub_.publish(msg);
+}
+
+void UAVController::pubRefTraj()
+{
+    if (currentTraj_ == nullptr)
+        return;
+
+    std::vector<geometry_msgs::PoseStamped> traj;
+
+    for (double t = 0; t < currentTraj_->totalTimeSpan(); t += 0.1)
+    {
+        geometry_msgs::PoseStamped pose_msg;
+        Eigen::Vector3d pos = currentTraj_->getPosition(t);
+        pose_msg.header.frame_id = "world";
+
+        pose_msg.pose.position.x = pos(0);
+        pose_msg.pose.position.y = pos(1);
+        pose_msg.pose.position.z = pos(2);
+        traj.insert(traj.begin(), pose_msg);
+    }
+
+    nav_msgs::Path msg;
+
+    msg.header.stamp = ros::Time::now();
+    msg.header.frame_id = "world";
+    msg.poses = traj;
+
+    referenceTrajPub_.publish(msg);
 }
