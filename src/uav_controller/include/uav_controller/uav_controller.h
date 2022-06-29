@@ -13,6 +13,7 @@
 #include <geometry_msgs/Pose.h>
 #include <nav_msgs/Path.h>
 #include <nav_msgs/Odometry.h>
+#include <ruckig_ros/ruckig.hpp>
 
 #include <Eigen/Dense>
 
@@ -22,6 +23,7 @@
 
 using namespace std;
 using namespace Eigen;
+using namespace ruckig;
 
 enum class MAV_STATE
 {
@@ -75,7 +77,8 @@ private:
     Eigen::Vector3d desired_acc;
     Eigen::Vector3d targetPos_, targetVel_, targetAcc_;
     Eigen::Vector3d targetPos_prev_, targetVel_prev_;
-    Eigen::Vector3d mavPos_, mavVel_, mavRate_;
+    Eigen::Vector3d targetWayPointPos_;
+    Eigen::Vector3d mavPos_, mavVel_, mavVelPrev_, mavRate_, mavAcc_;
     Eigen::Vector4d mavAtt_;
     Eigen::Vector3d g_;
     Eigen::Vector3d drag_;
@@ -94,10 +97,15 @@ private:
     std::vector<geometry_msgs::PoseStamped> posehistory_vector_;
     int posehistory_window_;
 
-    QuinticPolyTraj3D *currentTraj_;
-    double max_average_speed_;
-    ros::Time trajGeneratedTime;
-
+    Ruckig<3> ruckig_{0.010};         // Number DoFs; control cycle in [s]
+    InputParameter<3> ruckigInput_;   // Number DoFs
+    OutputParameter<3> ruckigOutput_; // Number DoFs
+    double goundTruth_dt_;
+    ros::Time groundTruth_last_time_;
+    double trajectory_max_vel_x_,trajectory_max_vel_y_,trajectory_max_vel_z_;
+    double trajectory_max_acc_x_,trajectory_max_acc_y_,trajectory_max_acc_z_;
+    double trajectory_max_jerk_x_,trajectory_max_jerk_y_,trajectory_max_jerk_z_;
+      
     // Callbacks
     void mavstateCallback(const mavros_msgs::State::ConstPtr &msg);
     void groundTruthCallback(const nav_msgs::Odometry &msg);
