@@ -11,6 +11,7 @@ UAVController::UAVController(const ros::NodeHandle &nh, const ros::NodeHandle &n
     waypointSub_ = nh_.subscribe("uav_controller/target_waypoint", 1, &UAVController::waypointCallback, this, ros::TransportHints().tcpNoDelay());
 
     // Initialize publishers
+    controllerStatePub_ = nh_.advertise<uav_msgs::State>("uav_controller/state", 1);
     companionStatusPub_ = nh_.advertise<mavros_msgs::CompanionProcessStatus>("mavros/companion_process/status", 1);
     bodyRatePub_ = nh_.advertise<mavros_msgs::AttitudeTarget>("mavros/setpoint_raw/attitude", 1);
     posePub_ = nh_.advertise<geometry_msgs::PoseStamped>("uav_controller/pose", 1);
@@ -22,11 +23,15 @@ UAVController::UAVController(const ros::NodeHandle &nh, const ros::NodeHandle &n
     armingClient_ = nh_.serviceClient<mavros_msgs::CommandBool>("mavros/cmd/arming");
     setModeClient_ = nh_.serviceClient<mavros_msgs::SetMode>("mavros/set_mode");
 
+    // Initialize service servers
+    takeoffServer_ = nh_.advertiseService("uav_controller/takeoff", &UAVController::takeoffServiceCallback, this);
+
     // Initialize timers
-    statusLoopTimer_ = nh_.createTimer(ros::Duration(1), &UAVController::statusLoopCallback, this);      // Define timer for constant loop rate
+    statusLoopTimer_ = nh_.createTimer(ros::Duration(0.1), &UAVController::statusLoopCallback, this);    // Define timer for constant loop rate
     controlLoopTimer_ = nh_.createTimer(ros::Duration(0.01), &UAVController::controlLoopCallback, this); // Define timer for constant loop rate
 
     // Initialize Parameters
+    nh_private_.param<bool>("auto_takeoff", autoTakeoff_, true);
     nh_private_.param<bool>("velocity_yaw", velocity_yaw_, false);
     nh_private_.param<double>("target_yaw", targetYaw_, 0.0);
     nh_private_.param<double>("initTargetPos_z", initTargetPos_z_, 2);
@@ -77,9 +82,9 @@ void UAVController::mavstateCallback(const mavros_msgs::State::ConstPtr &msg)
 
 void UAVController::groundTruthCallback(const nav_msgs::Odometry &msg)
 {
-    if (!homePoseReceived && nodeState == WAITING_HOME_POSE)
+    if (!homePoseReceived_ && controllerState_ == WAITING_HOME_POSE)
     {
-        homePoseReceived = true;
+        homePoseReceived_ = true;
         homePose_ = msg.pose.pose;
         ROS_INFO_STREAM("Home pose initialized to: " << homePose_);
     }
@@ -105,7 +110,7 @@ void UAVController::groundTruthCallback(const nav_msgs::Odometry &msg)
     groundTruth_last_time_ = now;
     mavVelPrev_ = mavVel_;
 
-    //ROS_INFO("dt = %0.3f; Acc: x = %+0.2f, %+0.2f, %+0.2f", goundTruth_dt_, mavAcc_(0), mavAcc_(0), mavAcc_(0));
+    // ROS_INFO("dt = %0.3f; Acc: x = %+0.2f, %+0.2f, %+0.2f", goundTruth_dt_, mavAcc_(0), mavAcc_(0), mavAcc_(0));
 }
 
 void UAVController::waypointCallback(const geometry_msgs::PoseStamped &msg)
@@ -127,85 +132,87 @@ void UAVController::waypointCallback(const geometry_msgs::PoseStamped &msg)
     ruckigInput_.max_acceleration = {trajectory_max_acc_x_, trajectory_max_acc_y_, trajectory_max_acc_z_};
     ruckigInput_.max_jerk = {trajectory_max_jerk_x_, trajectory_max_jerk_y_, trajectory_max_jerk_z_};
 
-    Ruckig<3> otg;
-    Trajectory<3> trajectory;
-    otg.calculate(ruckigInput_, trajectory);
+    waypointArrived_ = false;
 
-    std::vector<geometry_msgs::PoseStamped> traj;
-
-    for (double t = 0; t < trajectory.get_duration(); t += 0.1)
-    {
-        geometry_msgs::PoseStamped pose_msg;
-        std::array<double, 3> newPos, newVel, newAcc;
-        trajectory.at_time(t, newPos, newVel, newAcc);
-        pose_msg.header.frame_id = "world";
-
-        pose_msg.pose.position.x = newPos[0];
-        pose_msg.pose.position.y = newPos[1];
-        pose_msg.pose.position.z = newPos[2];
-        traj.insert(traj.begin(), pose_msg);
-    }
-
-    nav_msgs::Path pathMsg;
-
-    pathMsg.header.stamp = ros::Time::now();
-    pathMsg.header.frame_id = "world";
-    pathMsg.poses = traj;
-
-    referenceTrajPub_.publish(pathMsg);
+    pubRefTraj();
 }
 
 void UAVController::statusLoopCallback(const ros::TimerEvent &event)
 {
-    // Enable OffBoard mode and arm automatically
-    if (nodeState == FLYING)
+    if (readyToTakeoff_ && (controllerState_ == WAITING_TAKEOFF_COMMAND || controllerState_ == TAKING_OFF))
     {
+        controllerState_ = TAKING_OFF;
         mavArmCommand_.request.value = true;
         mavSetMode_.request.custom_mode = "OFFBOARD";
-        if (currentMavState_.mode != "OFFBOARD" && (ros::Time::now() - lastCommandRequest_ > ros::Duration(5.0)))
+        if (currentMavState_.mode != "OFFBOARD" && (ros::Time::now() - lastMavCommandRequest_ > ros::Duration(5.0)))
         {
             if (setModeClient_.call(mavSetMode_) && mavSetMode_.response.mode_sent)
             {
                 ROS_INFO("Offboard enabled");
             }
-            lastCommandRequest_ = ros::Time::now();
+            lastMavCommandRequest_ = ros::Time::now();
         }
         else
         {
-            if (!currentMavState_.armed && (ros::Time::now() - lastCommandRequest_ > ros::Duration(5.0)))
+            if (!currentMavState_.armed && (ros::Time::now() - lastMavCommandRequest_ > ros::Duration(5.0)))
             {
                 if (armingClient_.call(mavArmCommand_) && mavArmCommand_.response.success)
                 {
                     ROS_INFO("Vehicle armed");
                 }
-                lastCommandRequest_ = ros::Time::now();
+                lastMavCommandRequest_ = ros::Time::now();
             }
         }
     }
     publishCompanionState();
-    pubRefTraj();
+    pubControllerState();
 }
 
 void UAVController::controlLoopCallback(const ros::TimerEvent &event)
 {
-    switch (nodeState)
+    switch (controllerState_)
     {
     case WAITING_FCU_CONNECTION:
         // Wait for FCU connection
         waitForPredicate(&currentMavState_.connected, "Connecting to FCU...", 2);
-        ROS_INFO("Connected to FCU.");
-        nodeState = WAITING_HOME_POSE;
+        ROS_INFO("Connected to FCU");
+        controllerState_ = WAITING_HOME_POSE;
         companionState_ = MAV_STATE::MAV_STATE_STANDBY;
         break;
     case WAITING_HOME_POSE:
-        waitForPredicate(&homePoseReceived, "Waiting for home position...", 2);
+        waitForPredicate(&homePoseReceived_, "Waiting for home position...", 2);
         ROS_INFO("Got pose! Drone ready to be armed and take off.");
         targetPos_ << homePose_.position.x, homePose_.position.y, initTargetPos_z_;
-        nodeState = FLYING;
+        controllerState_ = WAITING_TAKEOFF_COMMAND;
         companionState_ = MAV_STATE::MAV_STATE_ACTIVE;
+        ROS_INFO("Waiting for takeoff command...");
+        break;
+    case WAITING_TAKEOFF_COMMAND: // Handled in Status Loop Callback.
+        if (autoTakeoff_)
+        {
+            ROS_INFO("Auto takeoff initiated, taking off!");
+            readyToTakeoff_ = true;
+            controllerState_ = TAKING_OFF;
+        }
+    case TAKING_OFF:
+        targetPos_ << homePose_.position.x, homePose_.position.y, initTargetPos_z_;
+        targetWayPointPos_ << targetPos_;
+        desired_acc = controlPosition(targetPos_, targetVel_, targetAcc_);
+        computeBodyRateCmd(cmdBodyRate_, desired_acc);
+        pubReferencePose(targetPos_, q_des);
+        pubRateCommands(cmdBodyRate_, q_des);
+        appendPoseHistory();
+        pubPoseHistory();
+
+        if (distance(targetPos_, mavPos_) < TARGET_REACH_THRESHOLD)
+        {
+            waypointArrived_ = true;
+            controllerState_ = FLYING;
+        }
         break;
     case FLYING:
-        if (ruckig_.update(ruckigInput_, ruckigOutput_) == Result::Working)
+        ruckigResult_ = ruckig_.update(ruckigInput_, ruckigOutput_);
+        if (ruckigResult_ == Result::Working)
         {
             targetPos_ << ruckigOutput_.new_position[0], ruckigOutput_.new_position[1], ruckigOutput_.new_position[2];
             targetVel_ << ruckigOutput_.new_velocity[0], ruckigOutput_.new_velocity[1], ruckigOutput_.new_velocity[2];
@@ -216,6 +223,14 @@ void UAVController::controlLoopCallback(const ros::TimerEvent &event)
             // ROS_INFO_STREAM("targetAcc_: " << targetAcc_);
             ruckigOutput_.pass_to_input(ruckigInput_);
         }
+        else if (ruckigResult_ == Result::Finished)
+        {
+            if (distance(targetPos_, mavPos_) < TARGET_REACH_THRESHOLD)
+            {
+                waypointArrived_ = true;
+            }
+        }
+
         desired_acc = controlPosition(targetPos_, targetVel_, targetAcc_);
         computeBodyRateCmd(cmdBodyRate_, desired_acc);
         pubReferencePose(targetPos_, q_des);
@@ -226,9 +241,19 @@ void UAVController::controlLoopCallback(const ros::TimerEvent &event)
 
     case LANDING:
         break;
-    case LANDED:
-        break;
     }
+}
+
+bool UAVController::takeoffServiceCallback(uav_controller::TakeoffCommand::Request &req, uav_controller::TakeoffCommand::Response &res)
+{
+    if (controllerState_ != WAITING_TAKEOFF_COMMAND)
+        res.response = false;
+    
+    initTargetPos_z_ = req.absoluteAltitude;
+    readyToTakeoff_ = true;
+    res.response = true;
+
+    return true;
 }
 
 void UAVController::publishCompanionState()
@@ -399,28 +424,44 @@ void UAVController::pubPoseHistory()
 
 void UAVController::pubRefTraj()
 {
-    // if (currentTraj_ == nullptr)
-    //     return;
+    // Generate Static Reference Trajectory and Publish
+    Ruckig<3> otg;
+    Trajectory<3> trajectory;
+    otg.calculate(ruckigInput_, trajectory);
 
-    // std::vector<geometry_msgs::PoseStamped> traj;
+    std::vector<geometry_msgs::PoseStamped> traj;
 
-    // for (double t = 0; t < currentTraj_->totalTimeSpan(); t += 0.1)
-    // {
-    //     geometry_msgs::PoseStamped pose_msg;
-    //     Eigen::Vector3d pos = currentTraj_->getPosition(t);
-    //     pose_msg.header.frame_id = "world";
+    for (double t = 0; t < trajectory.get_duration(); t += 0.1)
+    {
+        geometry_msgs::PoseStamped pose_msg;
+        std::array<double, 3> newPos, newVel, newAcc;
+        trajectory.at_time(t, newPos, newVel, newAcc);
+        pose_msg.header.frame_id = "world";
 
-    //     pose_msg.pose.position.x = pos(0);
-    //     pose_msg.pose.position.y = pos(1);
-    //     pose_msg.pose.position.z = pos(2);
-    //     traj.insert(traj.begin(), pose_msg);
-    // }
+        pose_msg.pose.position.x = newPos[0];
+        pose_msg.pose.position.y = newPos[1];
+        pose_msg.pose.position.z = newPos[2];
+        traj.insert(traj.begin(), pose_msg);
+    }
 
-    // nav_msgs::Path msg;
+    nav_msgs::Path pathMsg;
 
-    // msg.header.stamp = ros::Time::now();
-    // msg.header.frame_id = "world";
-    // msg.poses = traj;
+    pathMsg.header.stamp = ros::Time::now();
+    pathMsg.header.frame_id = "world";
+    pathMsg.poses = traj;
 
-    // referenceTrajPub_.publish(msg);
+    referenceTrajPub_.publish(pathMsg);
+}
+
+void UAVController::pubControllerState()
+{
+    uav_msgs::State msg;
+    msg.header.stamp = ros::Time::now();
+    msg.state = controllerState_;
+    msg.currentWaypoint.position.x = targetWayPointPos_(0);
+    msg.currentWaypoint.position.y = targetWayPointPos_(1);
+    msg.currentWaypoint.position.z = targetWayPointPos_(2);
+    msg.waypointArrived = waypointArrived_;
+
+    controllerStatePub_.publish(msg);
 }

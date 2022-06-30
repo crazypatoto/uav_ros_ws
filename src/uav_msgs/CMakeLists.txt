@@ -1,23 +1,16 @@
 cmake_minimum_required(VERSION 3.0.2)
-project(uav_controller)
+project(uav_msgs)
 
 ## Compile as C++11, supported in ROS Kinetic and newer
-add_compile_options(-std=c++17)
+# add_compile_options(-std=c++11)
 
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
-find_package(catkin REQUIRED COMPONENTS  
-  geometry_msgs
-  mavros
-  mavros_extras
-  mavros_msgs
-  nav_msgs
+find_package(catkin REQUIRED COMPONENTS
   roscpp
-  sensor_msgs
   std_msgs
-  uav_msgs
-  ruckig_ros
+  geometry_msgs
   message_generation
 )
 
@@ -55,18 +48,18 @@ find_package(catkin REQUIRED COMPONENTS
 ##   * add every package in MSG_DEP_SET to generate_messages(DEPENDENCIES ...)
 
 ## Generate messages in the 'msg' folder
-# add_message_files(
-#   FILES
-#   Message1.msg
-#   Message2.msg
-# )
+add_message_files(
+  DIRECTORY msg
+  FILES
+  State.msg
+)
 
 ## Generate services in the 'srv' folder
-add_service_files(
-  DIRECTORY srv
-  FILES
-  TakeoffCommand.srv
-)
+# add_service_files(
+#   FILES
+#   Service1.srv
+#   Service2.srv
+# )
 
 ## Generate actions in the 'action' folder
 # add_action_files(
@@ -79,6 +72,7 @@ add_service_files(
 generate_messages(
   DEPENDENCIES
   std_msgs
+  geometry_msgs
 )
 
 ################################################
@@ -111,9 +105,8 @@ generate_messages(
 ## CATKIN_DEPENDS: catkin_packages dependent projects also need
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
- INCLUDE_DIRS include
- LIBRARIES uav_controller
- CATKIN_DEPENDS geometry_msgs mavros mavros_extras mavros_msgs nav_msgs roscpp sensor_msgs std_msgs uav_msgs ruckig_ros
+  INCLUDE_DIRS include  
+  CATKIN_DEPENDS roscpp std_msgs geometry_msgs message_runtime
 #  DEPENDS system_lib
 )
 
@@ -126,27 +119,22 @@ catkin_package(
 include_directories(
   include
   ${catkin_INCLUDE_DIRS}
-  ${Boost_INCLUDE_DIR}  
-  ${Eigen_INCLUDE_DIRS}
-  ${ruckig_ros_INCLUDE_DIRS}
 )
 
 ## Declare a C++ library
-add_library(${PROJECT_NAME}
-  src/uav_controller.cpp
-  src/cubicpolytraj.cpp
-  src/quinticpolytraj.cpp  
-)
+# add_library(${PROJECT_NAME}
+#   src/${PROJECT_NAME}/uav_msgs.cpp
+# )
 
 ## Add cmake target dependencies of the library
 ## as an example, code may need to be generated before libraries
 ## either from message generation or dynamic reconfigure
-add_dependencies(${PROJECT_NAME} ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+# add_dependencies(${PROJECT_NAME} ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 ## Declare a C++ executable
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
-add_executable(${PROJECT_NAME}_node src/uav_controller_node.cpp)
+# add_executable(${PROJECT_NAME}_node src/uav_msgs_node.cpp)
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
@@ -156,18 +144,12 @@ add_executable(${PROJECT_NAME}_node src/uav_controller_node.cpp)
 
 ## Add cmake target dependencies of the executable
 ## same as for the library above
-add_dependencies(${PROJECT_NAME}_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+# add_dependencies(${PROJECT_NAME}_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 ## Specify libraries to link a library or executable target against
-target_link_libraries(${PROJECT_NAME}_node
-  ${catkin_LIBRARIES}
-  ${PROJECT_NAME}
-)
-
-target_link_libraries(${PROJECT_NAME}
-  ${catkin_LIBRARIES}
-)
-
+# target_link_libraries(${PROJECT_NAME}_node
+#   ${catkin_LIBRARIES}
+# )
 
 #############
 ## Install ##
@@ -216,7 +198,7 @@ target_link_libraries(${PROJECT_NAME}
 #############
 
 ## Add gtest based cpp test target and link libraries
-# catkin_add_gtest(${PROJECT_NAME}-test test/test_uav_controller.cpp)
+# catkin_add_gtest(${PROJECT_NAME}-test test/test_uav_msgs.cpp)
 # if(TARGET ${PROJECT_NAME}-test)
 #   target_link_libraries(${PROJECT_NAME}-test ${PROJECT_NAME})
 # endif()

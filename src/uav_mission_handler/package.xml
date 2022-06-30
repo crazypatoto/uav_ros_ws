@@ -1,14 +1,14 @@
 <?xml version="1.0"?>
 <package format="2">
-  <name>uav_controller</name>
+  <name>uav_mission_handler</name>
   <version>0.0.0</version>
-  <description>The uav_controller package. Modified from Jaeyoung Lim's mavros_controller <a href="https://github.com/Jaeyoung-Lim/mavros_controllers.git">mavros_controllers</a></description>
+  <description>The uav_mission_handler package</description>
 
   <!-- One maintainer tag required, multiple allowed, one person per tag -->
   <!-- Example:  -->
   <!-- <maintainer email="jane.doe@example.com">Jane Doe</maintainer> -->
-  <maintainer email="crazypatoto@gmail.com">Darren Chi</maintainer>
-  <author email="jalim@student.ethz.ch">Jaeyoung Lim</author>
+  <maintainer email="user@todo.todo">user</maintainer>
+
 
   <!-- One license tag required, multiple allowed, one license per tag -->
   <!-- Commonly used license strings: -->
@@ -19,7 +19,7 @@
   <!-- Url tags are optional, but multiple are allowed, one per tag -->
   <!-- Optional attribute type can be: website, bugtracker, or repository -->
   <!-- Example: -->
-  <!-- <url type="website">http://wiki.ros.org/uav_controller</url> -->
+  <!-- <url type="website">http://wiki.ros.org/uav_mission_handler</url> -->
 
 
   <!-- Author tags are optional, multiple are allowed, one per tag -->
@@ -49,39 +49,16 @@
   <!-- Use doc_depend for packages you need only for building documentation: -->
   <!--   <doc_depend>doxygen</doc_depend> -->
   <buildtool_depend>catkin</buildtool_depend>
-  <build_depend>eigen_catkin</build_depend>
   <build_depend>geometry_msgs</build_depend>
-  <build_depend>mavros</build_depend>
-  <build_depend>mavros_extras</build_depend>
-  <build_depend>mavros_msgs</build_depend>
-  <build_depend>nav_msgs</build_depend>
   <build_depend>roscpp</build_depend>
-  <build_depend>sensor_msgs</build_depend>
   <build_depend>std_msgs</build_depend>
-  <build_depend>uav_msgs</build_depend>
-  <build_depend>ruckig_ros</build_depend>
   <build_export_depend>geometry_msgs</build_export_depend>
-  <build_export_depend>mavros</build_export_depend>
-  <build_export_depend>mavros_extras</build_export_depend>
-  <build_export_depend>mavros_msgs</build_export_depend>
-  <build_export_depend>nav_msgs</build_export_depend>
   <build_export_depend>roscpp</build_export_depend>
-  <build_export_depend>sensor_msgs</build_export_depend>
   <build_export_depend>std_msgs</build_export_depend>
-  <build_export_depend>uav_msgs</build_export_depend>
-  <build_export_depend>ruckig_ros</build_export_depend>
   <exec_depend>geometry_msgs</exec_depend>
-  <exec_depend>mavros</exec_depend>
-  <exec_depend>mavros_extras</exec_depend>
-  <exec_depend>mavros_msgs</exec_depend>
-  <exec_depend>nav_msgs</exec_depend>
   <exec_depend>roscpp</exec_depend>
-  <exec_depend>sensor_msgs</exec_depend>
   <exec_depend>std_msgs</exec_depend>
-  <exec_depend>uav_msgs</exec_depend>
-  <exec_depend>ruckig_ros</exec_depend>
-  <build_depend>message_generation</build_depend>
-  <exec_depend>message_runtime</exec_depend>
+
 
   <!-- The export tag contains other, unspecified, tags -->
   <export>
