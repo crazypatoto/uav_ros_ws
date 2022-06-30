@@ -12,8 +12,7 @@ using namespace std;
 class UAVMissionHandler
 {
 private:
-    ros::NodeHandle nh_;
-    ros::NodeHandle nh_private_;
+    ros::NodeHandle nh_; 
 
     // Subscribers
     ros::Subscriber waypointArrivedSub_;

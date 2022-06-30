@@ -204,7 +204,7 @@ void UAVController::controlLoopCallback(const ros::TimerEvent &event)
         appendPoseHistory();
         pubPoseHistory();
 
-        if (distance(targetPos_, mavPos_) < TARGET_REACH_THRESHOLD)
+        if ((distance(targetPos_, mavPos_) < TARGET_REACH_POS_THRESHOLD) && (mavVel_.norm() < TARGET_REACH_VEL_THRESHOLD))
         {
             waypointArrived_ = true;
             controllerState_ = FLYING;
@@ -225,7 +225,7 @@ void UAVController::controlLoopCallback(const ros::TimerEvent &event)
         }
         else if (ruckigResult_ == Result::Finished)
         {
-            if (distance(targetPos_, mavPos_) < TARGET_REACH_THRESHOLD)
+            if ((distance(targetPos_, mavPos_) < TARGET_REACH_POS_THRESHOLD) && (mavVel_.norm() < TARGET_REACH_VEL_THRESHOLD))
             {
                 waypointArrived_ = true;
             }
@@ -248,7 +248,7 @@ bool UAVController::takeoffServiceCallback(uav_controller::TakeoffCommand::Reque
 {
     if (controllerState_ != WAITING_TAKEOFF_COMMAND)
         res.response = false;
-    
+
     initTargetPos_z_ = req.absoluteAltitude;
     readyToTakeoff_ = true;
     res.response = true;

@@ -1,7 +1,8 @@
 #ifndef GEOMETRIC_CONTROLLER_H
 #define GEOMETRIC_CONTROLLER_H
 
-#define TARGET_REACH_THRESHOLD (0.05)
+#define TARGET_REACH_POS_THRESHOLD (0.2)
+#define TARGET_REACH_VEL_THRESHOLD (0.1)
 
 #include <ros/ros.h>
 #include <ros/subscribe_options.h>
