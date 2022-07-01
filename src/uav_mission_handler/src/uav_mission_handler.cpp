@@ -11,7 +11,8 @@ UAVMissionHandler::UAVMissionHandler(const ros::NodeHandle &nh, const ros::NodeH
     waypointPub_ = nh_.advertise<geometry_msgs::PoseStamped>("uav_controller/target_waypoint", 1);
 
     // Initialize service clients
-    takeoffClient_ = nh_.serviceClient<uav_msgs::TakeoffCommand>("uav_controller/takeoff");
+    takeoffClient_ = nh_.serviceClient<uav_msgs::Takeoff>("uav_controller/takeoff");
+    landClient_ = nh_.serviceClient<uav_msgs::Takeoff>("uav_controller/land");
 
     // Initialize service servers
     // takeoffServer_ = nh_.advertiseService("uav_controller/takeoff", &UAVController::takeoffServiceCallback, this);

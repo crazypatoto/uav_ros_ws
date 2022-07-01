@@ -7,7 +7,8 @@
 #include <geometry_msgs/Pose.h>
 #include <geometry_msgs/PoseStamped.h>
 #include <uav_msgs/State.h>
-#include <uav_msgs/TakeoffCommand.h>
+#include <uav_msgs/Takeoff.h>
+#include <uav_msgs/Land.h>
 
 using namespace std;
 
@@ -25,6 +26,7 @@ private:
 
     // Service Clients
     ros::ServiceClient takeoffClient_;
+    ros::ServiceClient landClient_;
 
     // Callbacks
     void controllerStateCallback(const uav_msgs::State::ConstPtr &msg);
