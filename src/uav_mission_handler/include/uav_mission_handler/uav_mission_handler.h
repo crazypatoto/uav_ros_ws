@@ -9,6 +9,7 @@
 #include <uav_msgs/State.h>
 #include <uav_msgs/Takeoff.h>
 #include <uav_msgs/Land.h>
+#include <uav_msgs/GoHome.h>
 
 using namespace std;
 
@@ -27,6 +28,7 @@ private:
     // Service Clients
     ros::ServiceClient takeoffClient_;
     ros::ServiceClient landClient_;
+    ros::ServiceClient goHomeClient_;
 
     // Callbacks
     void controllerStateCallback(const uav_msgs::State::ConstPtr &msg);

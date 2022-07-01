@@ -13,6 +13,7 @@ UAVMissionHandler::UAVMissionHandler(const ros::NodeHandle &nh, const ros::NodeH
     // Initialize service clients
     takeoffClient_ = nh_.serviceClient<uav_msgs::Takeoff>("uav_controller/takeoff");
     landClient_ = nh_.serviceClient<uav_msgs::Takeoff>("uav_controller/land");
+    goHomeClient_ = nh_.serviceClient<uav_msgs::Takeoff>("uav_controller/go_home");
 
     // Initialize service servers
     // takeoffServer_ = nh_.advertiseService("uav_controller/takeoff", &UAVController::takeoffServiceCallback, this);
@@ -28,5 +29,4 @@ void UAVMissionHandler::controllerStateCallback(const uav_msgs::State::ConstPtr 
 
 void UAVMissionHandler::missionLoopCallback(const ros::TimerEvent &event)
 {
-    
 }

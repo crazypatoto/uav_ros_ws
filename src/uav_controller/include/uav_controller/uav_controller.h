@@ -21,6 +21,7 @@
 #include <uav_msgs/State.h>
 #include <uav_msgs/Takeoff.h>
 #include <uav_msgs/Land.h>
+#include <uav_msgs/GoHome.h>
 #include <ruckig_ros/ruckig.hpp>
 
 #include <Eigen/Dense>
@@ -74,6 +75,7 @@ private:
     // Service Servers
     ros::ServiceServer takeoffServer_;
     ros::ServiceServer landServer_;
+    ros::ServiceServer goHomeServer_;
 
     // Timers
     ros::Timer statusLoopTimer_;
@@ -130,6 +132,7 @@ private:
     void controlLoopCallback(const ros::TimerEvent &event);
     bool takeoffServiceCallback(uav_msgs::Takeoff::Request &req, uav_msgs::Takeoff::Response &res);
     bool landServiceCallback(uav_msgs::Land::Request &req, uav_msgs::Land::Response &res);
+    bool goHomeServiceCallback(uav_msgs::GoHome::Request &req, uav_msgs::GoHome::Response &res);
     
 
     // Functions
@@ -146,6 +149,7 @@ private:
     void pubRefTraj();
     void pubWaypointArrived(const bool arrived);
     void pubControllerState();
+    void travelToTargetWaypoint();
 
     enum ContorllerState
     {

@@ -60,6 +60,7 @@ add_service_files(
   FILES
   Takeoff.srv
   Land.srv
+  GoHome.srv
 )
 
 ## Generate actions in the 'action' folder

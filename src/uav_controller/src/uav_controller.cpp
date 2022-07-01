@@ -26,6 +26,7 @@ UAVController::UAVController(const ros::NodeHandle &nh, const ros::NodeHandle &n
     // Initialize service servers
     takeoffServer_ = nh_.advertiseService("uav_controller/takeoff", &UAVController::takeoffServiceCallback, this);
     landServer_ = nh_.advertiseService("uav_controller/land", &UAVController::landServiceCallback, this);
+    goHomeServer_ = nh_.advertiseService("uav_controller/go_home", &UAVController::goHomeServiceCallback, this);
 
     // Initialize Parameters
     nh_private_.param<bool>("auto_takeoff", autoTakeoff_, true);
@@ -122,19 +123,7 @@ void UAVController::waypointCallback(const geometry_msgs::PoseStamped &msg)
     // ROS_INFO_STREAM("mavPos_: " << mavPos_);
     // ROS_INFO_STREAM("mavVel_: " << mavVel_);
     // ROS_INFO_STREAM("mavAcc_: " << mavAcc_);
-
-    ruckigInput_.current_position = {mavPos_(0), mavPos_(1), mavPos_(2)};
-    ruckigInput_.current_velocity = {mavVel_(0), mavVel_(1), mavVel_(2)};
-    ruckigInput_.current_acceleration = {0, 0, 0};
-    ruckigInput_.target_position = {targetWayPointPos_(0), targetWayPointPos_(1), targetWayPointPos_(2)};
-    ruckigInput_.target_velocity = {0.0, 0.0, 0.0};
-    ruckigInput_.target_acceleration = {0.0, 0.0, 0.0};
-    ruckigInput_.max_velocity = {trajectory_max_vel_x_, trajectory_max_vel_y_, trajectory_max_vel_z_};
-    ruckigInput_.max_acceleration = {trajectory_max_acc_x_, trajectory_max_acc_y_, trajectory_max_acc_z_};
-    ruckigInput_.max_jerk = {trajectory_max_jerk_x_, trajectory_max_jerk_y_, trajectory_max_jerk_z_};
-
-    waypointArrived_ = false;
-
+    travelToTargetWaypoint();
     pubRefTraj();
 }
 
@@ -144,7 +133,7 @@ void UAVController::statusLoopCallback(const ros::TimerEvent &event)
     {
         controllerState_ = TAKING_OFF;
         mavArmCommand_.request.value = true;
-        mavSetMode_.request.custom_mode = "OFFBOARD";       // See all available modes at http://wiki.ros.org/mavros/CustomModes
+        mavSetMode_.request.custom_mode = "OFFBOARD"; // See all available modes at http://wiki.ros.org/mavros/CustomModes
         if (currentMavState_.mode != "OFFBOARD" && (ros::Time::now() - lastMavCommandRequest_ > ros::Duration(5.0)))
         {
             if (setModeClient_.call(mavSetMode_) && mavSetMode_.response.mode_sent)
@@ -241,7 +230,7 @@ void UAVController::controlLoopCallback(const ros::TimerEvent &event)
         break;
 
     case LANDING:
-        // UAV will disarmed in a few seconds after auto landing        
+        // UAV will disarmed in a few seconds after auto landing
         if (currentMavState_.armed == 0)
         {
             ROS_INFO("Landed successfully!");
@@ -286,6 +275,24 @@ bool UAVController::landServiceCallback(uav_msgs::Land::Request &req, uav_msgs::
     }
     lastMavCommandRequest_ = ros::Time::now();
 
+    return true;
+}
+
+bool UAVController::goHomeServiceCallback(uav_msgs::GoHome::Request &req, uav_msgs::GoHome::Response &res)
+{
+    res.success = false;
+    if (controllerState_ != FLYING)
+    {
+        return true;
+    }
+    
+
+    targetWayPointPos_ << homePose_.position.x, homePose_.position.y, initTargetPos_z_;
+    
+    travelToTargetWaypoint();
+    pubRefTraj();
+    
+    res.success = true;
     return true;
 }
 
@@ -497,4 +504,19 @@ void UAVController::pubControllerState()
     msg.waypointArrived = waypointArrived_;
 
     controllerStatePub_.publish(msg);
+}
+
+void UAVController::travelToTargetWaypoint()
+{
+    ruckigInput_.current_position = {mavPos_(0), mavPos_(1), mavPos_(2)};
+    ruckigInput_.current_velocity = {mavVel_(0), mavVel_(1), mavVel_(2)};
+    ruckigInput_.current_acceleration = {0, 0, 0};                          // use uav acceleration for best result
+    ruckigInput_.target_position = {targetWayPointPos_(0), targetWayPointPos_(1), targetWayPointPos_(2)};
+    ruckigInput_.target_velocity = {0.0, 0.0, 0.0};
+    ruckigInput_.target_acceleration = {0.0, 0.0, 0.0};
+    ruckigInput_.max_velocity = {trajectory_max_vel_x_, trajectory_max_vel_y_, trajectory_max_vel_z_};
+    ruckigInput_.max_acceleration = {trajectory_max_acc_x_, trajectory_max_acc_y_, trajectory_max_acc_z_};
+    ruckigInput_.max_jerk = {trajectory_max_jerk_x_, trajectory_max_jerk_y_, trajectory_max_jerk_z_};
+
+    waypointArrived_ = false;
 }
