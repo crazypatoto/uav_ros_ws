@@ -8,6 +8,8 @@
     * geometric_controller: Trajectory tracking controller based on geometric control
     * controller_msgs: custom message definitions
     * trajectory_publisher: Node publishing setpoints as states from motion primitives / trajectories for the controller to follow
+- ### mission_dispatcher
+    Mission scheduler and dispatcher.
 - ### move_uav
     Simple uav control in OFFBOARDMODE.
 - ### offboard_pkg
@@ -15,7 +17,7 @@
 - ### *ruckig_ros*
     Custom made ros package version of ruckig, an on-the-fly trajectory generation library. Modified from [ruckig](https://github.com/pantor/ruckig) by [pantor](https://github.com/pantor).
 - ### uav_controller
-    Core UAV controllong package. Including attitude control, trajectory generation and tracking, taking off and landing.
+    Core UAV controlling package. Including attitude control, trajectory generation and tracking, taking off and landing.
 - ### uav_gazebo
     Including modified iris models and test environments.
 - ### uav_launch
