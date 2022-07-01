@@ -8,7 +8,8 @@
                 "/usr/include/**",
                 "${workspaceFolder}/**",
                 "${workspaceFolder}/src/uav_mission_handler/include",
-                "${workspaceFolder}/devel/.private/uav_controller/include"
+                "${workspaceFolder}/devel/.private/uav_controller/include",
+                "${workspaceFolder}/devel/.private/uav_msgs/include"
             ],
             "defines": [],
             "compilerPath": "/usr/bin/g++",

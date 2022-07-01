@@ -19,6 +19,8 @@
 #include <nav_msgs/Odometry.h>
 #include <std_msgs/Bool.h>
 #include <uav_msgs/State.h>
+#include <uav_msgs/Takeoff.h>
+#include <uav_msgs/Land.h>
 #include <ruckig_ros/ruckig.hpp>
 
 #include <Eigen/Dense>
@@ -26,7 +28,7 @@
 #include "uav_controller/common.h"
 #include "uav_controller/cubicpolytraj.h"
 #include "uav_controller/quinticpolytraj.h"
-#include "uav_controller/TakeoffCommand.h"
+
 
 using namespace std;
 using namespace Eigen;
@@ -71,6 +73,7 @@ private:
 
     // Service Servers
     ros::ServiceServer takeoffServer_;
+    ros::ServiceServer landServer_;
 
     // Timers
     ros::Timer statusLoopTimer_;
@@ -125,7 +128,9 @@ private:
     void waypointCallback(const geometry_msgs::PoseStamped &msg);
     void statusLoopCallback(const ros::TimerEvent &event);
     void controlLoopCallback(const ros::TimerEvent &event);
-    bool takeoffServiceCallback(uav_controller::TakeoffCommand::Request &req, uav_controller::TakeoffCommand::Response &res);
+    bool takeoffServiceCallback(uav_msgs::Takeoff::Request &req, uav_msgs::Takeoff::Response &res);
+    bool landServiceCallback(uav_msgs::Land::Request &req, uav_msgs::Land::Response &res);
+    
 
     // Functions
     void publishCompanionState();

@@ -25,10 +25,7 @@ UAVController::UAVController(const ros::NodeHandle &nh, const ros::NodeHandle &n
 
     // Initialize service servers
     takeoffServer_ = nh_.advertiseService("uav_controller/takeoff", &UAVController::takeoffServiceCallback, this);
-
-    // Initialize timers
-    statusLoopTimer_ = nh_.createTimer(ros::Duration(0.1), &UAVController::statusLoopCallback, this);    // Define timer for constant loop rate
-    controlLoopTimer_ = nh_.createTimer(ros::Duration(0.01), &UAVController::controlLoopCallback, this); // Define timer for constant loop rate
+    landServer_ = nh_.advertiseService("uav_controller/land", &UAVController::landServiceCallback, this);
 
     // Initialize Parameters
     nh_private_.param<bool>("auto_takeoff", autoTakeoff_, true);
@@ -69,10 +66,14 @@ UAVController::UAVController(const ros::NodeHandle &nh, const ros::NodeHandle &n
     mavPos_ << 0.0, 0.0, 0.0;
     mavVel_ << 0.0, 0.0, 0.0;
     mavAtt_ << 1.0, 0.0, 0.0, 0.0;
-    g_ << 0.0, 0.0, -9.807;
+    g_ << 0.0, 0.0, -9.807; // Earth acceleration
     drag_ << dx_, dy_, dz_;
     Kpos_ << -Kpos_x_, -Kpos_y_, -Kpos_z_;
     Kvel_ << -Kvel_x_, -Kvel_y_, -Kvel_z_;
+
+    // Initialize timers
+    statusLoopTimer_ = nh_.createTimer(ros::Duration(0.1), &UAVController::statusLoopCallback, this);    // Define timer for constant loop rate
+    controlLoopTimer_ = nh_.createTimer(ros::Duration(0.01), &UAVController::controlLoopCallback, this); // Define timer for constant loop rate
 }
 
 void UAVController::mavstateCallback(const mavros_msgs::State::ConstPtr &msg)
@@ -143,7 +144,7 @@ void UAVController::statusLoopCallback(const ros::TimerEvent &event)
     {
         controllerState_ = TAKING_OFF;
         mavArmCommand_.request.value = true;
-        mavSetMode_.request.custom_mode = "OFFBOARD";
+        mavSetMode_.request.custom_mode = "OFFBOARD";       // See all available modes at http://wiki.ros.org/mavros/CustomModes
         if (currentMavState_.mode != "OFFBOARD" && (ros::Time::now() - lastMavCommandRequest_ > ros::Duration(5.0)))
         {
             if (setModeClient_.call(mavSetMode_) && mavSetMode_.response.mode_sent)
@@ -240,18 +241,50 @@ void UAVController::controlLoopCallback(const ros::TimerEvent &event)
         break;
 
     case LANDING:
+        // UAV will disarmed in a few seconds after auto landing        
+        if (currentMavState_.armed == 0)
+        {
+            ROS_INFO("Landed successfully!");
+            autoTakeoff_ = false;
+            readyToTakeoff_ = false;
+            controllerState_ = WAITING_TAKEOFF_COMMAND;
+        }
         break;
     }
 }
 
-bool UAVController::takeoffServiceCallback(uav_controller::TakeoffCommand::Request &req, uav_controller::TakeoffCommand::Response &res)
+bool UAVController::takeoffServiceCallback(uav_msgs::Takeoff::Request &req, uav_msgs::Takeoff::Response &res)
 {
     if (controllerState_ != WAITING_TAKEOFF_COMMAND)
-        res.response = false;
+    {
+        res.success = false;
+        return true;
+    }
 
     initTargetPos_z_ = req.absoluteAltitude;
     readyToTakeoff_ = true;
-    res.response = true;
+    res.success = true;
+
+    return true;
+}
+
+bool UAVController::landServiceCallback(uav_msgs::Land::Request &req, uav_msgs::Land::Response &res)
+{
+    res.success = false;
+    if (!waypointArrived_)
+    {
+        return true;
+    }
+
+    mavSetMode_.request.custom_mode = "AUTO.LAND";
+    if (setModeClient_.call(mavSetMode_) && mavSetMode_.response.mode_sent)
+    {
+        ROS_INFO("AUTO.LAND Mode Set.");
+        ROS_INFO("Landing...");
+        controllerState_ = LANDING;
+        res.success = true;
+    }
+    lastMavCommandRequest_ = ros::Time::now();
 
     return true;
 }
