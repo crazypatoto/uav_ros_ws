@@ -78,7 +78,7 @@
     </group>
 
     <!-- UAV1 -->
-    <group ns="uav1">
+    <group ns="uav1" if="false">
         <!-- MAVROS and vehicle configs -->
         <arg name="ID" value="1" />
         <arg name="fcu_url" default="udp://:14541@localhost:14581" />

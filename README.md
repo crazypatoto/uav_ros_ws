@@ -3,16 +3,16 @@
 ## Packages
 - ### *[gazebo_ros_link_attacher](https://github.com/pal-robotics/gazebo_ros_link_attacher)*
     Attach two Gazebo models with a virtual joint in a generalized grasp hack. 
-- ### *[mavros_controller](https://github.com/Jaeyoung-Lim/mavros_controllers)*
+- ### **[mavros_controller](https://github.com/Jaeyoung-Lim/mavros_controllers)*
     Controllers for controlling MAVs using the mavros package in OFFBOARD mode.  
     * geometric_controller: Trajectory tracking controller based on geometric control
     * controller_msgs: custom message definitions
     * trajectory_publisher: Node publishing setpoints as states from motion primitives / trajectories for the controller to follow
 - ### mission_dispatcher
     Mission scheduler and dispatcher.
-- ### move_uav
-    Simple uav control in OFFBOARDMODE.
-- ### offboard_pkg
+- ### *move_uav
+    Simple uav control in OFFBOARD mode.
+- ### *offboard_pkg
     An example package according to [offical PX4 OFFBOARD mode turtorial](https://docs.px4.io/v1.12/en/ros/mavros_offboard.html).
 - ### *ruckig_ros*
     Custom made ros package version of ruckig, an on-the-fly trajectory generation library. Modified from [ruckig](https://github.com/pantor/ruckig) by [pantor](https://github.com/pantor).
@@ -27,11 +27,14 @@
 - ### uav_msgs
     Custom UAV messages.
 
+*Note: Package names with * prefix are not necessary.*
+
 
 ## Prerequisites
 1. Install Dependencies
 ```bash
 sudo apt-get install libeigen3-dev
+sudo apt-get install libtinyxml-dev
 ```
 
 2. Install PX4 Autopilot Firmare (v1.12.3)

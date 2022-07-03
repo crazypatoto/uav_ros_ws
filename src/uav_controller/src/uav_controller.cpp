@@ -508,6 +508,8 @@ void UAVController::pubControllerState()
 
 void UAVController::travelToTargetWaypoint()
 {
+    waypointArrived_ = false;
+    
     ruckigInput_.current_position = {mavPos_(0), mavPos_(1), mavPos_(2)};
     ruckigInput_.current_velocity = {mavVel_(0), mavVel_(1), mavVel_(2)};
     ruckigInput_.current_acceleration = {0, 0, 0};                          // use uav acceleration for best result
@@ -516,7 +518,5 @@ void UAVController::travelToTargetWaypoint()
     ruckigInput_.target_acceleration = {0.0, 0.0, 0.0};
     ruckigInput_.max_velocity = {trajectory_max_vel_x_, trajectory_max_vel_y_, trajectory_max_vel_z_};
     ruckigInput_.max_acceleration = {trajectory_max_acc_x_, trajectory_max_acc_y_, trajectory_max_acc_z_};
-    ruckigInput_.max_jerk = {trajectory_max_jerk_x_, trajectory_max_jerk_y_, trajectory_max_jerk_z_};
-
-    waypointArrived_ = false;
+    ruckigInput_.max_jerk = {trajectory_max_jerk_x_, trajectory_max_jerk_y_, trajectory_max_jerk_z_};    
 }

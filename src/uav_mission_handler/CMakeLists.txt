@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.0.2)
 project(uav_mission_handler)
 
 ## Compile as C++11, supported in ROS Kinetic and newer
-# add_compile_options(-std=c++11)
+add_compile_options(-std=c++17)
 
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
@@ -12,7 +12,11 @@ find_package(catkin REQUIRED COMPONENTS
   roscpp
   std_msgs
   uav_msgs
+  gazebo_msgs
+  gazebo_ros_link_attacher
+  roslib
 )
+
 
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
@@ -106,8 +110,7 @@ find_package(catkin REQUIRED COMPONENTS
 catkin_package(
   INCLUDE_DIRS include
   LIBRARIES uav_mission_handler
-  CATKIN_DEPENDS geometry_msgs roscpp std_msgs uav_msgs
-#  DEPENDS system_lib
+  CATKIN_DEPENDS geometry_msgs roscpp std_msgs uav_msgs gazebo_msgs gazebo_ros_link_attacher roslib
 )
 
 ###########
@@ -154,7 +157,7 @@ target_link_libraries(${PROJECT_NAME}
 
 target_link_libraries(${PROJECT_NAME}_node
   ${catkin_LIBRARIES}
-  ${PROJECT_NAME}
+  ${PROJECT_NAME}  
 )
 
 #############

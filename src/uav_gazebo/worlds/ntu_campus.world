@@ -15,7 +15,8 @@
     </scene>
     <gui>
       <camera name='user_camera'>
-        <pose>93.9622 385.904 75.0091 0 0.392 -1.572</pose>
+        <!-- <pose>93.9622 385.904 75.0091 0 0.392 -1.572</pose> -->
+        <pose>146.61 234.574 22.3495 0 0.168 -1.772</pose>
         <view_controller>orbit</view_controller>
         <projection_type>perspective</projection_type>
       </camera>
@@ -25,7 +26,6 @@
     <include>
       <uri>model://sun</uri>
     </include>
-
     <include>
       <uri>model://ntu_campus</uri>
     </include>

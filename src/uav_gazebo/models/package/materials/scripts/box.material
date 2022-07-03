@@ -1,0 +1,13 @@
+material boxMat/Diffuse
+{
+  technique
+  {
+    pass
+    {
+      texture_unit
+      {
+        texture ../textures/box.png        
+      }
+    }
+  }
+}
