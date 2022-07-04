@@ -1,6 +1,9 @@
 <?xml version="1.0"?>
 <launch>
 
+    <!-- Use gazebo simulation time -->
+    <param name="/use_sim_time" value="true" />
+
     <!-- vehicle model and world -->
     <arg name="est" default="ekf2" />
     <arg name="vehicle" default="iris" />

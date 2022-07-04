@@ -1,5 +1,8 @@
 <?xml version="1.0"?>
 <launch>
+    <!-- Use gazebo simulation time -->
+    <param name="/use_sim_time" value="true" />
+
     <!-- MAVROS posix SITL environment launch script -->
     <!-- launches Gazebo environment and 2x: MAVROS, PX4 SITL, and spawns vehicle -->
     <!-- vehicle model and world -->
@@ -75,9 +78,9 @@
             <param name="use_groudtruth" value="true" />
             <param name="auto_takeoff" value="false" />
         </node>
-        
+
         <!-- UAV Mission Handler -->
-        <node pkg="uav_mission_handler" type="uav_mission_handler_node" name="uav_mission_handler" output="screen">         
+        <node pkg="uav_mission_handler" type="uav_mission_handler_node" name="uav_mission_handler" output="screen">
             <param name="UAV_ID" value="$(arg ID)" />
             <param name="travel_altitude" value="5" />
         </node>
