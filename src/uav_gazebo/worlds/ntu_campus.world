@@ -30,6 +30,77 @@
       <uri>model://ntu_campus</uri>
     </include>
 
+    <model name="land_pad_0">
+      <include>
+        <uri>model://land_pad</uri>
+        <pose>95 227 17.3 0 0 0</pose>
+      </include>
+    </model>
+
+    <model name="land_pad_1">
+      <include>
+        <uri>model://land_pad</uri>
+        <pose>100 227 17.3 0 0 0</pose>
+      </include>
+    </model>
+
+    <model name="land_pad_2">
+      <include>
+        <uri>model://land_pad</uri>
+        <pose>105 227 17.3 0 0 0</pose>
+      </include>
+    </model>
+
+    <model name="land_pad_3">
+      <include>
+        <uri>model://land_pad</uri>
+        <pose>110 227 17.3 0 0 0</pose>
+      </include>
+    </model>
+
+    <model name="land_pad_4">
+      <include>
+        <uri>model://land_pad</uri>
+        <pose>115 227 17.3 0 0 0</pose>
+      </include>
+    </model>
+
+    <model name="land_pad_5">
+      <include>
+        <uri>model://land_pad</uri>
+        <pose>120 227 17.3 0 0 0</pose>
+      </include>
+    </model>
+
+    <model name="land_pad_6">
+      <include>
+        <uri>model://land_pad</uri>
+        <pose>125 227 17.3 0 0 0</pose>
+      </include>
+    </model>
+
+    <model name="land_pad_7">
+      <include>
+        <uri>model://land_pad</uri>
+        <pose>130 227 17.3 0 0 0</pose>
+      </include>
+    </model>
+
+    <model name="land_pad_8">
+      <include>
+        <uri>model://land_pad</uri>
+        <pose>135 227 17.3 0 0 0</pose>
+      </include>
+    </model>
+
+    <model name="land_pad_9">
+      <include>
+        <uri>model://land_pad</uri>
+        <pose>140 227 17.3 0 0 0</pose>
+      </include>
+    </model>
+
+
     <spherical_coordinates>
       <surface_model>EARTH_WGS84</surface_model>
       <latitude_deg>25.017</latitude_deg>

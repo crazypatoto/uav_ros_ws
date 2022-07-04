@@ -1,0 +1,13 @@
+material landPadmat/Diffuse
+{
+  technique
+  {
+    pass
+    {
+      texture_unit
+      {
+        texture ../textures/land_pad.png        
+      }
+    }
+  }
+}

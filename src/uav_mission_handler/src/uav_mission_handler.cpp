@@ -123,7 +123,13 @@ void UAVMissionHandler::missionLoopCallback(const ros::TimerEvent &event)
 
 bool UAVMissionHandler::orderReceivedCallback(uav_msgs::EnqueueOrder::Request &req, uav_msgs::EnqueueOrder::Response &res)
 {
+    if (req.order.missions.size() == 0)
+    {
+        res.success = false;
+        return true;
+    }
     orderQueue_.push(req.order);
+    res.success = true;
     return true;
 }
 
@@ -133,10 +139,10 @@ void UAVMissionHandler::spawnPackageModel(int packageID, int position)
     std::string xmlStr((std::istreambuf_iterator<char>(stream)), std::istreambuf_iterator<char>());
 
     gazebo_msgs::SpawnModel spawnModel;
-    spawnModel.request.initial_pose.orientation.w = 0.707;
+    spawnModel.request.initial_pose.orientation.w = 0.707;      // Rotate 90 degrees
     spawnModel.request.initial_pose.orientation.x = 0;
     spawnModel.request.initial_pose.orientation.y = 0;
-    spawnModel.request.initial_pose.orientation.z = 0.707;
+    spawnModel.request.initial_pose.orientation.z = 0.707;      // Rotate 90 degress along Z axis
     spawnModel.request.initial_pose.position.x = uavPose_.position.x;
     spawnModel.request.initial_pose.position.y = uavPose_.position.y + (0.14 * position);
     spawnModel.request.initial_pose.position.z = uavPose_.position.z - 0.1;

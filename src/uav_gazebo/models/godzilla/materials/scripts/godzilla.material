@@ -1,0 +1,13 @@
+material godzillaMat/Diffuse
+{
+  technique
+  {
+    pass
+    {
+      texture_unit
+      {
+        texture ../textures/godzilla.png     
+      }
+    }
+  }
+}

@@ -1,0 +1,50 @@
+<?xml version='1.0'?>
+<sdf version='1.7'>
+  <model name='godzilla'>
+    <link name='link'>
+      <inertial>
+        <mass>100</mass>
+        <inertia>
+          <ixx>0.00001</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>0.00001</iyy>
+          <iyz>0</iyz>
+          <izz>0.00001</izz>
+        </inertia>
+        <pose>0 0 0 0 -0 0</pose>
+      </inertial>
+      <self_collide>0</self_collide>
+      <enable_wind>0</enable_wind>
+      <kinematic>0</kinematic>
+      <pose>0 0 0 0 -0 0</pose>
+      <gravity>1</gravity>
+      <visual name="visual">
+        <geometry>
+          <mesh>
+            <uri>model://godzilla/meshes/godzilla.dae</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <script>
+            <name>godzillaMat/Diffuse</name>
+            <uri>model://godzilla/materials/scripts</uri>
+            <uri>model://godzilla/materials/textures</uri>
+          </script>
+          <shader type='pixel'>
+            <normal_map>__default__</normal_map>
+          </shader>
+        </material>
+      </visual>
+      <collision name="collision">
+        <geometry>
+          <mesh>
+            <uri>model://godzilla/meshes/godzilla.dae</uri>
+          </mesh>
+        </geometry>
+      </collision>
+    </link>
+    <static>1</static>
+    <allow_auto_disable>1</allow_auto_disable>
+  </model>
+</sdf>

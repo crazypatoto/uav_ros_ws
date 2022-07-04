@@ -31,8 +31,8 @@
         <arg name="fcu_local_port" default="$(eval 14580 + arg('ID'))" />
         <arg name="fcu_remote_port" default="$(eval 14540 + arg('ID'))" />
         <arg name="fcu_url" default="udp://:$(arg fcu_remote_port)@localhost:$(arg fcu_local_port)" />
-        <arg name="x" value="140" />
-        <arg name="y" value="223" />
+        <arg name="x" value="95" />
+        <arg name="y" value="227" />
         <arg name="z" value="18.73" />
         <arg name="R" value="0" />
         <arg name="P" value="0" />
@@ -76,6 +76,13 @@
             <param name="initTargetPos_z" value="20" />
             <!--Use ground truth pose from gazebo plugin-->
             <param name="use_groudtruth" value="true" />
+            <param name="auto_takeoff" value="false" />
+        </node>
+
+        <!-- UAV Mission Handler -->
+        <node pkg="uav_mission_handler" type="uav_mission_handler_node" name="uav_mission_handler" output="screen">
+            <param name="UAV_ID" value="$(arg ID)" />
+            <param name="travel_altitude" value="40" />
         </node>
 
     </group>
@@ -90,8 +97,8 @@
         <arg name="fcu_local_port" default="$(eval 14580 + arg('ID'))" />
         <arg name="fcu_remote_port" default="$(eval 14540 + arg('ID'))" />
         <arg name="fcu_url" default="udp://:$(arg fcu_remote_port)@localhost:$(arg fcu_local_port)" />
-        <arg name="x" value="141" />
-        <arg name="y" value="223" />
+        <arg name="x" value="100" />
+        <arg name="y" value="227" />
         <arg name="z" value="18.73" />
         <arg name="R" value="0" />
         <arg name="P" value="0" />
@@ -149,8 +156,8 @@
         <arg name="fcu_local_port" default="$(eval 14580 + arg('ID'))" />
         <arg name="fcu_remote_port" default="$(eval 14540 + arg('ID'))" />
         <arg name="fcu_url" default="udp://:$(arg fcu_remote_port)@localhost:$(arg fcu_local_port)" />
-        <arg name="x" value="142" />
-        <arg name="y" value="223" />
+        <arg name="x" value="105" />
+        <arg name="y" value="227" />
         <arg name="z" value="18.73" />
         <arg name="R" value="0" />
         <arg name="P" value="0" />
@@ -208,8 +215,8 @@
         <arg name="fcu_local_port" default="$(eval 14580 + arg('ID'))" />
         <arg name="fcu_remote_port" default="$(eval 14540 + arg('ID'))" />
         <arg name="fcu_url" default="udp://:$(arg fcu_remote_port)@localhost:$(arg fcu_local_port)" />
-        <arg name="x" value="143" />
-        <arg name="y" value="223" />
+        <arg name="x" value="110" />
+        <arg name="y" value="227" />
         <arg name="z" value="18.73" />
         <arg name="R" value="0" />
         <arg name="P" value="0" />
@@ -267,8 +274,8 @@
         <arg name="fcu_local_port" default="$(eval 14580 + arg('ID'))" />
         <arg name="fcu_remote_port" default="$(eval 14540 + arg('ID'))" />
         <arg name="fcu_url" default="udp://:$(arg fcu_remote_port)@localhost:$(arg fcu_local_port)" />
-        <arg name="x" value="144" />
-        <arg name="y" value="223" />
+        <arg name="x" value="115" />
+        <arg name="y" value="227" />
         <arg name="z" value="18.73" />
         <arg name="R" value="0" />
         <arg name="P" value="0" />
@@ -326,8 +333,8 @@
         <arg name="fcu_local_port" default="$(eval 14580 + arg('ID'))" />
         <arg name="fcu_remote_port" default="$(eval 14540 + arg('ID'))" />
         <arg name="fcu_url" default="udp://:$(arg fcu_remote_port)@localhost:$(arg fcu_local_port)" />
-        <arg name="x" value="145" />
-        <arg name="y" value="223" />
+        <arg name="x" value="120" />
+        <arg name="y" value="227" />
         <arg name="z" value="18.73" />
         <arg name="R" value="0" />
         <arg name="P" value="0" />
@@ -385,8 +392,8 @@
         <arg name="fcu_local_port" default="$(eval 14580 + arg('ID'))" />
         <arg name="fcu_remote_port" default="$(eval 14540 + arg('ID'))" />
         <arg name="fcu_url" default="udp://:$(arg fcu_remote_port)@localhost:$(arg fcu_local_port)" />
-        <arg name="x" value="146" />
-        <arg name="y" value="223" />
+        <arg name="x" value="125" />
+        <arg name="y" value="227" />
         <arg name="z" value="18.73" />
         <arg name="R" value="0" />
         <arg name="P" value="0" />
@@ -444,8 +451,8 @@
         <arg name="fcu_local_port" default="$(eval 14580 + arg('ID'))" />
         <arg name="fcu_remote_port" default="$(eval 14540 + arg('ID'))" />
         <arg name="fcu_url" default="udp://:$(arg fcu_remote_port)@localhost:$(arg fcu_local_port)" />
-        <arg name="x" value="147" />
-        <arg name="y" value="223" />
+        <arg name="x" value="130" />
+        <arg name="y" value="227" />
         <arg name="z" value="18.73" />
         <arg name="R" value="0" />
         <arg name="P" value="0" />
@@ -503,8 +510,8 @@
         <arg name="fcu_local_port" default="$(eval 14580 + arg('ID'))" />
         <arg name="fcu_remote_port" default="$(eval 14540 + arg('ID'))" />
         <arg name="fcu_url" default="udp://:$(arg fcu_remote_port)@localhost:$(arg fcu_local_port)" />
-        <arg name="x" value="148" />
-        <arg name="y" value="223" />
+        <arg name="x" value="135" />
+        <arg name="y" value="227" />
         <arg name="z" value="18.73" />
         <arg name="R" value="0" />
         <arg name="P" value="0" />
@@ -562,8 +569,8 @@
         <arg name="fcu_local_port" default="$(eval 14580 + arg('ID'))" />
         <arg name="fcu_remote_port" default="$(eval 14540 + arg('ID'))" />
         <arg name="fcu_url" default="udp://:$(arg fcu_remote_port)@localhost:$(arg fcu_local_port)" />
-        <arg name="x" value="149" />
-        <arg name="y" value="223" />
+        <arg name="x" value="140" />
+        <arg name="y" value="227" />
         <arg name="z" value="18.73" />
         <arg name="R" value="0" />
         <arg name="P" value="0" />
@@ -611,6 +618,6 @@
 
     </group>
 
-    <node type="rviz" name="rviz" pkg="rviz" args="-d $(find uav_launch)/rviz/campus.rviz"/>
+    <node type="rviz" name="rviz" pkg="rviz" args="-d $(find uav_launch)/rviz/campus.rviz" />
 
 </launch>
