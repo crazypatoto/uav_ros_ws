@@ -30,17 +30,13 @@ def main():
 class train():
     def __init__(self):
         self.env = SimulationEnvironment()
-        # for i in range(100):
-        #     self.env.start()
-        #     time.sleep(50)
-        #     self.env.stop()
-        #     time.sleep(3)
-        #     print(i)
-
-        self.env.start()
-        time.sleep(10)
-        self.env.stop()
-        time.sleep(3)
+        for i in range(100):
+            self.env.start()
+            time.sleep(3)
+            self.env.setSpeedFactor(SIM_SPEED_FACTOR)
+            time.sleep(10)
+            self.env.stop()
+            time.sleep(3)
 
 
 class SimulationEnvironment():
@@ -48,7 +44,6 @@ class SimulationEnvironment():
     def __init__(self):
         self.uuid = roslaunch.rlutil.get_or_generate_uuid(None, False)
         roslaunch.configure_logging(self.uuid)
-        roslaunch.logging.disable()
         r = rospkg.RosPack()
         gazobo_pkg_path = r.get_path('uav_collision_avoidance')
         cli_args = [gazobo_pkg_path + "/launch/train.launch", '']
@@ -62,9 +57,15 @@ class SimulationEnvironment():
         # os.environ['PX4_SIM_SPEED_FACTOR'] = str(SIM_SPEED_FACTOR)
 
         self.launch = roslaunch.parent.ROSLaunchParent(
-            self.uuid, self.roslaunch_file)
+            self.uuid, self.roslaunch_file) 
         self.launch.start()
 
+    def stop(self):
+        os.system('pkill gzclient')
+        os.system('pkill gzserver')
+        self.launch.shutdown()
+
+    def setSpeedFactor(self, factor):
         rospy.wait_for_service('/gazebo/get_physics_properties')
         try:
             get_physics_properties = rospy.ServiceProxy(
@@ -77,14 +78,13 @@ class SimulationEnvironment():
         try:
             set_physics_properties = rospy.ServiceProxy(
                 '/gazebo/set_physics_properties', SetPhysicsProperties)
-            set_physics_properties(0.004, 1000, resp.gravity, resp.ode_config)
+            resp = set_physics_properties(0.004, 250 * factor,
+                                   resp.gravity, resp.ode_config)
         except rospy.ServiceException as e:
             print("Service call failed: %s" % e)
-
-    def stop(self):
-        os.system('pkill gzclient')
-        os.system('pkill gzserver')
-        self.launch.shutdown()
+        
+        if resp.success == False:
+            rospy.logerr('Cannot set speed factor')
 
 
 if __name__ == '__main__':
