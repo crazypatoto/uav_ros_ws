@@ -16,6 +16,8 @@
     An example package according to [offical PX4 OFFBOARD mode turtorial](https://docs.px4.io/v1.12/en/ros/mavros_offboard.html).
 - ### *ruckig_ros*
     Custom made ros package version of ruckig, an on-the-fly trajectory generation library. Modified from [ruckig](https://github.com/pantor/ruckig) by [pantor](https://github.com/pantor).
+- ### uav_collision_avoidance
+    Decentralized UAV collision avoidance using DDPG.
 - ### uav_controller
     Core UAV controlling package. Including attitude control, trajectory generation and tracking, taking off and landing.
 - ### uav_gazebo
@@ -29,6 +31,12 @@
 
 *Note: Package names with * prefix are not necessary.*
 
+---
+
+## Environment
+- ### OS: Ubuntu 20.04
+- ### ROS: ROS noetic
+- ### Python: 3.8.10
 
 ## Prerequisites
 1. Install Dependencies

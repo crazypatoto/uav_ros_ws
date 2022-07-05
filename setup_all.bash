@@ -1,6 +1,6 @@
 #!/bin/bash
 
-PX4_AUTOPILOT_DIR=/home/user/PX4-Autopilot
+PX4_AUTOPILOT_DIR=../PX4-Autopilot
 SRC_DIR=${PX4_AUTOPILOT_DIR}
 BUILD_DIR=${PX4_AUTOPILOT_DIR}/build/px4_sitl_default
 
