@@ -76,17 +76,19 @@
             <param name="initTargetPos_z" value="20" />
             <!--Use ground truth pose from gazebo plugin-->
             <param name="use_groudtruth" value="true" />
-            <param name="auto_takeoff" value="false" />
+            <param name="auto_takeoff" value="true" />
         </node>
 
         <!-- UAV Mission Handler -->
-        <node pkg="uav_mission_handler" type="uav_mission_handler_node" name="uav_mission_handler" output="screen">
+        <!-- <node pkg="uav_mission_handler" type="uav_mission_handler_node" name="uav_mission_handler" output="screen">
             <param name="UAV_ID" value="$(arg ID)" />
             <param name="travel_altitude" value="5" />
-        </node>
+        </node> -->
     </group>
 
     <node type="rviz" name="rviz" pkg="rviz" args="-d $(find uav_launch)/rviz/test.rviz" />
+    <!-- Launch rqt_reconfigure -->
+    <node pkg="rqt_reconfigure" type="rqt_reconfigure" output="screen" name="rqt_reconfigure" />
 
 </launch> <!-- to add more UAVs (up to 10):
 Increase the id

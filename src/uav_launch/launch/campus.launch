@@ -80,6 +80,7 @@
             <!--Use ground truth pose from gazebo plugin-->
             <param name="use_groudtruth" value="true" />
             <param name="auto_takeoff" value="false" />
+            <param name="velocity_yaw" value="true" />
         </node>
 
         <!-- UAV Mission Handler -->

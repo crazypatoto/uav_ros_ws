@@ -6,6 +6,7 @@
 
 #include <ros/ros.h>
 #include <ros/subscribe_options.h>
+#include <dynamic_reconfigure/server.h>
 #include <tf/transform_broadcaster.h>
 
 #include <mavros_msgs/State.h>
@@ -15,6 +16,8 @@
 #include <mavros_msgs/AttitudeTarget.h>
 #include <geometry_msgs/Pose.h>
 #include <geometry_msgs/PoseStamped.h>
+#include <geometry_msgs/Twist.h>
+#include <geometry_msgs/TwistStamped.h>
 #include <nav_msgs/Path.h>
 #include <nav_msgs/Odometry.h>
 #include <std_msgs/Bool.h>
@@ -29,7 +32,7 @@
 #include "uav_controller/common.h"
 #include "uav_controller/cubicpolytraj.h"
 #include "uav_controller/quinticpolytraj.h"
-
+#include <uav_controller/UAVControllerConfig.h>
 
 using namespace std;
 using namespace Eigen;
@@ -58,6 +61,7 @@ private:
     ros::Subscriber mavStateSub_;
     ros::Subscriber groundTruthSub_;
     ros::Subscriber waypointSub_;
+    ros::Subscriber cmdVelSub_;
 
     // Publishers
     ros::Publisher controllerStatePub_;
@@ -67,6 +71,7 @@ private:
     ros::Publisher referencePosePub_;
     ros::Publisher posehistoryPub_;
     ros::Publisher referenceTrajPub_;
+    ros::Publisher cmdVelPub_;
 
     // Service Clients
     ros::ServiceClient armingClient_;
@@ -97,18 +102,21 @@ private:
     Eigen::Vector3d g_;
     Eigen::Vector3d drag_;
     Eigen::Vector3d Kpos_, Kvel_;
+    Eigen::Vector3d P_, I_, D_;
     Eigen::Vector4d q_des;
     Eigen::Vector4d cmdBodyRate_; //{wx, wy, wz, Thrust}
     bool homePoseReceived_ = false;
     bool readyToTakeoff_ = false;
     bool waypointArrived_ = false;
+    bool cmdVelReceived_ = false;
     bool autoTakeoff_;
-    bool velocity_yaw_;
+    bool velocity_yaw_, velocity_yaw_preset_;
     double initTargetPos_z_;
     double targetYaw_;
     double dx_, dy_, dz_;
     double max_fb_acc_;
     double Kpos_x_, Kpos_y_, Kpos_z_, Kvel_x_, Kvel_y_, Kvel_z_;
+    double P_x_, P_y_, P_z_, I_x_, I_y_, I_z_, D_x_, D_y_, D_z_;
     double attctrl_tau_;
     double norm_thrust_const_, norm_thrust_offset_;
     double trajectory_max_vel_x_, trajectory_max_vel_y_, trajectory_max_vel_z_;
@@ -128,12 +136,12 @@ private:
     void mavstateCallback(const mavros_msgs::State::ConstPtr &msg);
     void groundTruthCallback(const nav_msgs::Odometry &msg);
     void waypointCallback(const geometry_msgs::PoseStamped &msg);
+    void cmdVelCallback(const geometry_msgs::TwistStamped &msg);
     void statusLoopCallback(const ros::TimerEvent &event);
     void controlLoopCallback(const ros::TimerEvent &event);
     bool takeoffServiceCallback(uav_msgs::Takeoff::Request &req, uav_msgs::Takeoff::Response &res);
     bool landServiceCallback(uav_msgs::Land::Request &req, uav_msgs::Land::Response &res);
     bool goHomeServiceCallback(uav_msgs::GoHome::Request &req, uav_msgs::GoHome::Response &res);
-    
 
     // Functions
     void publishCompanionState();
@@ -141,6 +149,7 @@ private:
     Eigen::Vector4d acc2quaternion(const Eigen::Vector3d &vector_acc, const double &yaw);
     void computeBodyRateCmd(Eigen::Vector4d &bodyrate_cmd, const Eigen::Vector3d &a_des);
     Eigen::Vector3d poscontroller(const Eigen::Vector3d &pos_error, const Eigen::Vector3d &vel_error);
+    Eigen::Vector3d posvelcontroller();
     Eigen::Vector4d geometric_attcontroller(const Eigen::Vector4d &ref_att, const Eigen::Vector3d &ref_acc, Eigen::Vector4d &curr_att);
     void pubReferencePose(const Eigen::Vector3d &target_position, const Eigen::Vector4d &target_attitude);
     void pubRateCommands(const Eigen::Vector4d &cmd, const Eigen::Vector4d &target_attitude);
@@ -175,6 +184,7 @@ private:
 
 public:
     UAVController(const ros::NodeHandle &nh, const ros::NodeHandle &nh_private);
+    void dynamicReconfigureCallback(uav_controller::UAVControllerConfig &config, uint32_t level);
 };
 
 #endif

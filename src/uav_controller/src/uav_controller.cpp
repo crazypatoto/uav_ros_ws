@@ -9,6 +9,7 @@ UAVController::UAVController(const ros::NodeHandle &nh, const ros::NodeHandle &n
     mavStateSub_ = nh_.subscribe("mavros/state", 1, &UAVController::mavstateCallback, this, ros::TransportHints().tcpNoDelay());
     groundTruthSub_ = nh_.subscribe("ground_truth/state", 1, &UAVController::groundTruthCallback, this, ros::TransportHints().tcpNoDelay());
     waypointSub_ = nh_.subscribe("uav_controller/target_waypoint", 1, &UAVController::waypointCallback, this, ros::TransportHints().tcpNoDelay());
+    cmdVelSub_ = nh_.subscribe("uav_controller/cmd_vel", 1, &UAVController::cmdVelCallback, this, ros::TransportHints().tcpNoDelay());
 
     // Initialize publishers
     controllerStatePub_ = nh_.advertise<uav_msgs::State>("uav_controller/state", 1);
@@ -18,6 +19,7 @@ UAVController::UAVController(const ros::NodeHandle &nh, const ros::NodeHandle &n
     referencePosePub_ = nh_.advertise<geometry_msgs::PoseStamped>("uav_controller/reference/pose", 1);
     posehistoryPub_ = nh_.advertise<nav_msgs::Path>("uav_controller/path", 10);
     referenceTrajPub_ = nh_.advertise<nav_msgs::Path>("uav_controller/reference/trajectory", 10);
+    cmdVelPub_ = nh_.advertise<geometry_msgs::TwistStamped>("mavros/setpoint_velocity/cmd_vel", 1);
 
     // Initialize service clients
     armingClient_ = nh_.serviceClient<mavros_msgs::CommandBool>("mavros/cmd/arming");
@@ -30,19 +32,13 @@ UAVController::UAVController(const ros::NodeHandle &nh, const ros::NodeHandle &n
 
     // Initialize Parameters
     nh_private_.param<bool>("auto_takeoff", autoTakeoff_, true);
-    nh_private_.param<bool>("velocity_yaw", velocity_yaw_, false);
+    nh_private_.param<bool>("velocity_yaw", velocity_yaw_preset_, false);
     nh_private_.param<double>("target_yaw", targetYaw_, 0.0);
     nh_private_.param<double>("initTargetPos_z", initTargetPos_z_, 2);
     nh_private_.param<double>("drag_dx", dx_, 0.0);
     nh_private_.param<double>("drag_dy", dy_, 0.0);
     nh_private_.param<double>("drag_dz", dz_, 0.0);
     nh_private_.param<double>("max_acc", max_fb_acc_, 8.0);
-    nh_private_.param<double>("Kp_x", Kpos_x_, 5.0);
-    nh_private_.param<double>("Kp_y", Kpos_y_, 5.0);
-    nh_private_.param<double>("Kp_z", Kpos_z_, 5.0);
-    nh_private_.param<double>("Kv_x", Kvel_x_, 1.5);
-    nh_private_.param<double>("Kv_y", Kvel_y_, 1.5);
-    nh_private_.param<double>("Kv_z", Kvel_z_, 3.3);
     nh_private_.param<double>("attctrl_constant", attctrl_tau_, 0.1);
     nh_private_.param<double>("normalizedthrust_constant", norm_thrust_const_, 0.063); // 1 / max acceleration
     nh_private_.param<double>("normalizedthrust_offset", norm_thrust_offset_, 0.1);    // 1 / max acceleration
@@ -56,11 +52,23 @@ UAVController::UAVController(const ros::NodeHandle &nh, const ros::NodeHandle &n
     nh_private_.param<double>("trajectory_max_jerk_x", trajectory_max_jerk_x_, 5.0);
     nh_private_.param<double>("trajectory_max_jerk_y", trajectory_max_jerk_y_, 5.0);
     nh_private_.param<double>("trajectory_max_jerk_z", trajectory_max_jerk_z_, 5.0);
+    // PD Position Controller Parameters
+    nh_private_.param<double>("Kp_x", Kpos_x_, 5.0);
     nh_private_.param<double>("Kp_y", Kpos_y_, 5.0);
     nh_private_.param<double>("Kp_z", Kpos_z_, 5.0);
     nh_private_.param<double>("Kv_x", Kvel_x_, 1.5);
     nh_private_.param<double>("Kv_y", Kvel_y_, 1.5);
-    nh_private_.param<double>("Kv_z", Kvel_z_, 3.3);
+    nh_private_.param<double>("Kv_z", Kvel_z_, 1.5);
+    // PID Velocity Controller Parameters
+    nh_private_.param<double>("P_x", P_x_, 1.5);
+    nh_private_.param<double>("P_y", P_y_, 1.5);
+    nh_private_.param<double>("P_z", P_z_, 1.5);
+    nh_private_.param<double>("I_x", I_x_, 1.0);
+    nh_private_.param<double>("I_y", I_y_, 1.0);
+    nh_private_.param<double>("I_z", I_z_, 1.0);
+    nh_private_.param<double>("D_x", D_x_, 1.0);
+    nh_private_.param<double>("D_y", D_y_, 1.0);
+    nh_private_.param<double>("D_z", D_z_, 1.0);
 
     targetPos_ << 0, 0, initTargetPos_z_; // Initial Position
     targetVel_ << 0.0, 0.0, 0.0;
@@ -71,6 +79,9 @@ UAVController::UAVController(const ros::NodeHandle &nh, const ros::NodeHandle &n
     drag_ << dx_, dy_, dz_;
     Kpos_ << -Kpos_x_, -Kpos_y_, -Kpos_z_;
     Kvel_ << -Kvel_x_, -Kvel_y_, -Kvel_z_;
+    P_ << P_x_, P_y_, P_z_;
+    I_ << I_x_, I_y_, I_z_;
+    D_ << D_x_, D_y_, D_z_;
 
     // Initialize timers
     statusLoopTimer_ = nh_.createTimer(ros::Duration(0.1), &UAVController::statusLoopCallback, this);    // Define timer for constant loop rate
@@ -125,6 +136,12 @@ void UAVController::waypointCallback(const geometry_msgs::PoseStamped &msg)
     // ROS_INFO_STREAM("mavAcc_: " << mavAcc_);
     travelToTargetWaypoint();
     pubRefTraj();
+}
+
+void UAVController::cmdVelCallback(const geometry_msgs::TwistStamped &msg)
+{
+    cmdVelReceived_ = true;
+    targetVel_ << msg.twist.linear.x, msg.twist.linear.y, 0;
 }
 
 void UAVController::statusLoopCallback(const ros::TimerEvent &event)
@@ -208,6 +225,10 @@ void UAVController::controlLoopCallback(const ros::TimerEvent &event)
             targetVel_ << ruckigOutput_.new_velocity[0], ruckigOutput_.new_velocity[1], ruckigOutput_.new_velocity[2];
             targetAcc_ << ruckigOutput_.new_acceleration[0], ruckigOutput_.new_acceleration[1], ruckigOutput_.new_acceleration[2];
 
+            if (velocity_yaw_preset_)
+            {
+                velocity_yaw_ = true;
+            }
             // ROS_INFO_STREAM("targetPos_: " << targetPos_);
             // ROS_INFO_STREAM("targetVel_: " << targetVel_);
             // ROS_INFO_STREAM("targetAcc_: " << targetAcc_);
@@ -219,6 +240,7 @@ void UAVController::controlLoopCallback(const ros::TimerEvent &event)
             {
                 waypointArrived_ = true;
             }
+            velocity_yaw_ = false;
         }
 
         desired_acc = controlPosition(targetPos_, targetVel_, targetAcc_);
@@ -285,13 +307,12 @@ bool UAVController::goHomeServiceCallback(uav_msgs::GoHome::Request &req, uav_ms
     {
         return true;
     }
-    
 
     targetWayPointPos_ << homePose_.position.x, homePose_.position.y, initTargetPos_z_;
-    
+
     travelToTargetWaypoint();
     pubRefTraj();
-    
+
     res.success = true;
     return true;
 }
@@ -320,11 +341,12 @@ Eigen::Vector3d UAVController::controlPosition(const Eigen::Vector3d &target_pos
         }
     }
 
-    const Eigen::Vector3d pos_error = mavPos_ - target_pos;
+    Eigen::Vector3d pos_error = mavPos_ - target_pos;
     const Eigen::Vector3d vel_error = mavVel_ - target_vel;
 
     // Position Controller
-    const Eigen::Vector3d a_fb = poscontroller(pos_error, vel_error);
+    // const Eigen::Vector3d a_fb = poscontroller(pos_error, vel_error);
+    const Eigen::Vector3d a_fb = posvelcontroller();
 
     // Rotor Drag compensation
     const Eigen::Vector4d q_ref = acc2quaternion(a_ref - g_, targetYaw_);
@@ -365,6 +387,29 @@ void UAVController::computeBodyRateCmd(Eigen::Vector4d &bodyrate_cmd, const Eige
 Eigen::Vector3d UAVController::poscontroller(const Eigen::Vector3d &pos_error, const Eigen::Vector3d &vel_error)
 {
     Eigen::Vector3d a_fb = Kpos_.asDiagonal() * pos_error + Kvel_.asDiagonal() * vel_error; // feedforward term for trajectory error
+
+    if (a_fb.norm() > max_fb_acc_)
+        a_fb = (max_fb_acc_ / a_fb.norm()) * a_fb; // Clip acceleration if reference is too large
+
+    return a_fb;
+}
+
+Eigen::Vector3d UAVController::posvelcontroller()
+{
+    static Eigen::Vector3d vel_int, vel_error_last;
+    Eigen::Vector3d pos_error = targetPos_ - mavPos_;
+    if (cmdVelReceived_)
+    {
+        pos_error << 0, 0, pos_error(2);
+    }
+
+    Eigen::Vector3d vel_sp_position = Kpos_.asDiagonal() * -pos_error;
+    Eigen::Vector3d vel_sp = targetVel_ + vel_sp_position;
+    Eigen::Vector3d vel_error = vel_sp - mavVel_;
+    Eigen::Vector3d a_fb = P_.asDiagonal() * vel_error + vel_int + D_.asDiagonal() * (vel_error - vel_error_last) / 0.01;
+
+    vel_int += I_.asDiagonal() * vel_error * 0.01;
+    vel_error_last = vel_error;
 
     if (a_fb.norm() > max_fb_acc_)
         a_fb = (max_fb_acc_ / a_fb.norm()) * a_fb; // Clip acceleration if reference is too large
@@ -509,14 +554,104 @@ void UAVController::pubControllerState()
 void UAVController::travelToTargetWaypoint()
 {
     waypointArrived_ = false;
-    
+
     ruckigInput_.current_position = {mavPos_(0), mavPos_(1), mavPos_(2)};
     ruckigInput_.current_velocity = {mavVel_(0), mavVel_(1), mavVel_(2)};
-    ruckigInput_.current_acceleration = {0, 0, 0};                          // use uav acceleration for best result
+    ruckigInput_.current_acceleration = {0, 0, 0}; // use uav acceleration for best result
     ruckigInput_.target_position = {targetWayPointPos_(0), targetWayPointPos_(1), targetWayPointPos_(2)};
     ruckigInput_.target_velocity = {0.0, 0.0, 0.0};
     ruckigInput_.target_acceleration = {0.0, 0.0, 0.0};
     ruckigInput_.max_velocity = {trajectory_max_vel_x_, trajectory_max_vel_y_, trajectory_max_vel_z_};
     ruckigInput_.max_acceleration = {trajectory_max_acc_x_, trajectory_max_acc_y_, trajectory_max_acc_z_};
-    ruckigInput_.max_jerk = {trajectory_max_jerk_x_, trajectory_max_jerk_y_, trajectory_max_jerk_z_};    
+    ruckigInput_.max_jerk = {trajectory_max_jerk_x_, trajectory_max_jerk_y_, trajectory_max_jerk_z_};
+}
+
+void UAVController::dynamicReconfigureCallback(uav_controller::UAVControllerConfig &config, uint32_t level)
+{
+    if (max_fb_acc_ != config.max_acc)
+    {
+        max_fb_acc_ = config.max_acc;
+        ROS_INFO("Reconfigure request : max_acc = %.2f ", config.max_acc);
+    }
+    else if (Kpos_x_ != config.Kp_x)
+    {
+        Kpos_x_ = config.Kp_x;
+        ROS_INFO("Reconfigure request : Kp_x  = %.2f  ", config.Kp_x);
+    }
+    else if (Kpos_y_ != config.Kp_y)
+    {
+        Kpos_y_ = config.Kp_y;
+        ROS_INFO("Reconfigure request : Kp_y  = %.2f  ", config.Kp_y);
+    }
+    else if (Kpos_z_ != config.Kp_z)
+    {
+        Kpos_z_ = config.Kp_z;
+        ROS_INFO("Reconfigure request : Kp_z  = %.2f  ", config.Kp_z);
+    }
+    else if (Kvel_x_ != config.Kv_x)
+    {
+        Kvel_x_ = config.Kv_x;
+        ROS_INFO("Reconfigure request : Kv_x  = %.2f  ", config.Kv_x);
+    }
+    else if (Kvel_y_ != config.Kv_y)
+    {
+        Kvel_y_ = config.Kv_y;
+        ROS_INFO("Reconfigure request : Kv_y =%.2f  ", config.Kv_y);
+    }
+    else if (Kvel_z_ != config.Kv_z)
+    {
+        Kvel_z_ = config.Kv_z;
+        ROS_INFO("Reconfigure request : Kv_z  = %.2f  ", config.Kv_z);
+    }
+    else if (P_x_ != config.velP_x)
+    {
+        P_x_ = config.velP_x;
+        ROS_INFO("Reconfigure request : P_x  = %.2f  ", config.velP_x);
+    }
+    else if (P_y_ != config.velP_y)
+    {
+        P_y_ = config.velP_y;
+        ROS_INFO("Reconfigure request : P_y  = %.2f  ", config.velP_y);
+    }
+    else if (P_z_ != config.velP_z)
+    {
+        P_z_ = config.velP_z;
+        ROS_INFO("Reconfigure request : P_z  = %.2f  ", config.velP_z);
+    }
+    else if (I_x_ != config.velI_x)
+    {
+        I_x_ = config.velI_x;
+        ROS_INFO("Reconfigure request : I_x  = %.2f  ", config.velI_x);
+    }
+    else if (I_y_ != config.velI_y)
+    {
+        I_y_ = config.velI_y;
+        ROS_INFO("Reconfigure request : I_y  = %.2f  ", config.velI_y);
+    }
+    else if (I_z_ != config.velI_z)
+    {
+        I_z_ = config.velI_z;
+        ROS_INFO("Reconfigure request : I_z  = %.2f  ", config.velI_z);
+    }
+    else if (D_x_ != config.velD_x)
+    {
+        D_x_ = config.velD_x;
+        ROS_INFO("Reconfigure request : D_x  = %.2f  ", config.velD_x);
+    }
+    else if (D_y_ != config.velD_y)
+    {
+        D_y_ = config.velD_y;
+        ROS_INFO("Reconfigure request : D_y  = %.2f  ", config.velD_y);
+    }
+    else if (D_z_ != config.velD_z)
+    {
+        D_z_ = config.velD_z;
+        ROS_INFO("Reconfigure request : D_z  = %.2f  ", config.velD_z);
+    }
+
+    Kpos_ << -Kpos_x_, -Kpos_y_, -Kpos_z_;
+    Kvel_ << -Kvel_x_, -Kvel_y_, -Kvel_z_;
+    P_ << P_x_, P_y_, P_z_;
+    I_ << I_x_, I_y_, I_z_;
+    D_ << D_x_, D_y_, D_z_;
 }
