@@ -43,32 +43,32 @@ UAVController::UAVController(const ros::NodeHandle &nh, const ros::NodeHandle &n
     nh_private_.param<double>("normalizedthrust_constant", norm_thrust_const_, 0.063); // 1 / max acceleration
     nh_private_.param<double>("normalizedthrust_offset", norm_thrust_offset_, 0.1);    // 1 / max acceleration
     nh_private_.param<int>("posehistory_window", posehistory_window_, 1000);
-    nh_private_.param<double>("trajectory_max_vel_x", trajectory_max_vel_x_, 15.0);
-    nh_private_.param<double>("trajectory_max_vel_y", trajectory_max_vel_y_, 15.0);
-    nh_private_.param<double>("trajectory_max_vel_z", trajectory_max_vel_z_, 10.0);
-    nh_private_.param<double>("trajectory_max_acc_x", trajectory_max_acc_x_, 5.0);
-    nh_private_.param<double>("trajectory_max_acc_y", trajectory_max_acc_y_, 5.0);
-    nh_private_.param<double>("trajectory_max_acc_z", trajectory_max_acc_z_, 5.0);
-    nh_private_.param<double>("trajectory_max_jerk_x", trajectory_max_jerk_x_, 5.0);
-    nh_private_.param<double>("trajectory_max_jerk_y", trajectory_max_jerk_y_, 5.0);
-    nh_private_.param<double>("trajectory_max_jerk_z", trajectory_max_jerk_z_, 5.0);
+    nh_private_.param<double>("trajectory_max_vel_x", trajectory_max_vel_x_, 12.0);
+    nh_private_.param<double>("trajectory_max_vel_y", trajectory_max_vel_y_, 12.0);
+    nh_private_.param<double>("trajectory_max_vel_z", trajectory_max_vel_z_, 9.0);
+    nh_private_.param<double>("trajectory_max_acc_x", trajectory_max_acc_x_, 4.0);
+    nh_private_.param<double>("trajectory_max_acc_y", trajectory_max_acc_y_, 4.0);
+    nh_private_.param<double>("trajectory_max_acc_z", trajectory_max_acc_z_, 3.0);
+    nh_private_.param<double>("trajectory_max_jerk_x", trajectory_max_jerk_x_, 4.0);
+    nh_private_.param<double>("trajectory_max_jerk_y", trajectory_max_jerk_y_, 4.0);
+    nh_private_.param<double>("trajectory_max_jerk_z", trajectory_max_jerk_z_, 3.0);
     // PD Position Controller Parameters
-    nh_private_.param<double>("Kp_x", Kpos_x_, 5.0);
-    nh_private_.param<double>("Kp_y", Kpos_y_, 5.0);
-    nh_private_.param<double>("Kp_z", Kpos_z_, 5.0);
-    nh_private_.param<double>("Kv_x", Kvel_x_, 1.5);
-    nh_private_.param<double>("Kv_y", Kvel_y_, 1.5);
-    nh_private_.param<double>("Kv_z", Kvel_z_, 1.5);
+    nh_private_.param<double>("Kp_x", Kpos_x_, 3.0);
+    nh_private_.param<double>("Kp_y", Kpos_y_, 3.0);
+    nh_private_.param<double>("Kp_z", Kpos_z_, 3.0);
+    nh_private_.param<double>("Kv_x", Kvel_x_, 5.0);
+    nh_private_.param<double>("Kv_y", Kvel_y_, 5.0);
+    nh_private_.param<double>("Kv_z", Kvel_z_, 3.0);
     // PID Velocity Controller Parameters
-    nh_private_.param<double>("P_x", P_x_, 1.5);
-    nh_private_.param<double>("P_y", P_y_, 1.5);
-    nh_private_.param<double>("P_z", P_z_, 1.5);
-    nh_private_.param<double>("I_x", I_x_, 1.0);
-    nh_private_.param<double>("I_y", I_y_, 1.0);
-    nh_private_.param<double>("I_z", I_z_, 1.0);
-    nh_private_.param<double>("D_x", D_x_, 1.0);
-    nh_private_.param<double>("D_y", D_y_, 1.0);
-    nh_private_.param<double>("D_z", D_z_, 1.0);
+    nh_private_.param<double>("P_x", P_x_, 3.0);
+    nh_private_.param<double>("P_y", P_y_, 3.0);
+    nh_private_.param<double>("P_z", P_z_, 3.0);
+    nh_private_.param<double>("I_x", I_x_, 0.3);
+    nh_private_.param<double>("I_y", I_y_, 0.3);
+    nh_private_.param<double>("I_z", I_z_, 0.3);
+    nh_private_.param<double>("D_x", D_x_, 0.01);
+    nh_private_.param<double>("D_y", D_y_, 0.01);
+    nh_private_.param<double>("D_z", D_z_, 0.01);
 
     targetPos_ << 0, 0, initTargetPos_z_; // Initial Position
     targetVel_ << 0.0, 0.0, 0.0;
@@ -345,8 +345,16 @@ Eigen::Vector3d UAVController::controlPosition(const Eigen::Vector3d &target_pos
     const Eigen::Vector3d vel_error = mavVel_ - target_vel;
 
     // Position Controller
-    // const Eigen::Vector3d a_fb = poscontroller(pos_error, vel_error);
-    const Eigen::Vector3d a_fb = posvelcontroller();
+
+    Eigen::Vector3d a_fb;
+    if (cmdVelReceived_)
+    {
+        a_fb = posvelcontroller();
+    }
+    else
+    {
+        a_fb = poscontroller(pos_error, vel_error);
+    }
 
     // Rotor Drag compensation
     const Eigen::Vector4d q_ref = acc2quaternion(a_ref - g_, targetYaw_);

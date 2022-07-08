@@ -1,0 +1,47 @@
+!!python/object/new:dynamic_reconfigure.encoding.Config
+dictitems:
+  Kp_x: 3.0
+  Kp_y: 3.0
+  Kp_z: 3.0
+  Kv_x: 1.0
+  Kv_y: 1.0
+  Kv_z: 1.0
+  groups: !!python/object/new:dynamic_reconfigure.encoding.Config
+    dictitems:
+      Kp_x: 3.0
+      Kp_y: 3.0
+      Kp_z: 3.0
+      Kv_x: 1.0
+      Kv_y: 1.0
+      Kv_z: 1.0
+      groups: !!python/object/new:dynamic_reconfigure.encoding.Config
+        state: []
+      id: 0
+      max_acc: 7.0
+      name: Default
+      parameters: !!python/object/new:dynamic_reconfigure.encoding.Config
+        state: []
+      parent: 0
+      state: true
+      type: ''
+      velD_x: 0.01
+      velD_y: 0.01
+      velD_z: 0.01
+      velI_x: 0.3
+      velI_y: 0.3
+      velI_z: 0.5
+      velP_x: 3.0
+      velP_y: 3.0
+      velP_z: 3.0
+    state: []
+  max_acc: 7.0
+  velD_x: 0.01
+  velD_y: 0.01
+  velD_z: 0.01
+  velI_x: 0.3
+  velI_y: 0.3
+  velI_z: 0.5
+  velP_x: 3.0
+  velP_y: 3.0
+  velP_z: 3.0
+state: []

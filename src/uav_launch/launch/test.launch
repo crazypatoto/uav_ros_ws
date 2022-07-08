@@ -67,13 +67,22 @@
             <param name="attctrl_constant" value="0.3" />
             <param name="normalizedthrust_constant" value="0.062" />
             <param name="normalizedthrust_offset" value="0.1" />
-            <param name="Kp_x" value="5.0" />
-            <param name="Kp_y" value="5.0" />
-            <param name="Kp_z" value="3.0" />
+            <param name="Kp_x" value="8.0" />
+            <param name="Kp_y" value="8.0" />
+            <param name="Kp_z" value="5.0" />
             <param name="Kv_x" value="5.0" />
             <param name="Kv_y" value="5.0" />
             <param name="Kv_z" value="3.0" />
-            <param name="initTargetPos_z" value="20" />
+            <param name="P_x" value="5.0" />
+            <param name="P_y" value="5.0" />
+            <param name="P_z" value="3.0" />
+            <param name="I_x" value="0.5" />
+            <param name="I_y" value="0.5" />
+            <param name="I_z" value="0.3" />
+            <param name="D_x" value="0.01" />
+            <param name="D_y" value="0.01" />
+            <param name="D_z" value="0.01" />
+            <param name="initTargetPos_z" value="5" />
             <!--Use ground truth pose from gazebo plugin-->
             <param name="use_groudtruth" value="true" />
             <param name="auto_takeoff" value="true" />
