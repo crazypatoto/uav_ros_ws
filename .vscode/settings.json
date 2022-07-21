@@ -3,5 +3,9 @@
         "/home/user/catkin_ws/devel/lib/python3/dist-packages",
         "/opt/ros/noetic/lib/python3/dist-packages",
         "./src/uav_collision_avoidance/src"
+    ],
+    "python.autoComplete.extraPaths": [
+        "/home/user/uav_ros_ws/devel/lib/python3/dist-packages",
+        "/opt/ros/noetic/lib/python3/dist-packages"
     ]
 }

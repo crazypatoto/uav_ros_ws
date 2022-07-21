@@ -8,13 +8,13 @@ project(uav_collision_avoidance)
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
-  geometry_msgs
+  geometry_msgs  
   mavros
   mavros_extras
   mavros_msgs
   nav_msgs
   roscpp
-  rospy
+  rospy  
   std_msgs
   uav_msgs
 )
@@ -110,8 +110,8 @@ catkin_python_setup()
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
 #  INCLUDE_DIRS include
-#  LIBRARIES uav_collision_avoidance
-#  CATKIN_DEPENDS geometry_msgs mavros mavros_extras mavros_msgs nav_msgs roscpp rospy std_msgs uav_msgs
+LIBRARIES uav_collision_avoidance
+CATKIN_DEPENDS geometry_msgs mavros mavros_extras mavros_msgs nav_msgs roscpp rospy std_msgs uav_msgs
 #  DEPENDS system_lib
 )
 
@@ -167,7 +167,7 @@ include_directories(
 ## in contrast to setup.py, you can choose the destination
 catkin_install_python(
   PROGRAMS
-  bin/train
+  scripts/uav_collision_avoidance_node.py
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 
