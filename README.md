@@ -36,8 +36,8 @@
 ## Environment
 - ### OS: Ubuntu 20.04
 - ### ROS: ROS noetic
-- ### Python: 3.8.10
-
+- ### Python: v3.8.10
+- ### CUDA: v11.3
 ## Prerequisites
 1. Install Dependencies
 ```bash

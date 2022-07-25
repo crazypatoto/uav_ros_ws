@@ -64,6 +64,8 @@ add_service_files(
   Land.srv
   GoHome.srv
   EnqueueOrder.srv
+  UCASelectAction.srv
+  UAVsInRange.srv
 )
 
 ## Generate actions in the 'action' folder

@@ -1,7 +1,9 @@
 #!/usr/bin/env python
+from curses import REPORT_MOUSE_POSITION
 from locale import normalize
 from tkinter.messagebox import NO
 from unicodedata import name
+from urllib import response
 import rospy
 import rospkg
 import os
@@ -13,55 +15,70 @@ from nav_msgs.msg import Odometry
 from geometry_msgs.msg import Vector3
 from geometry_msgs.msg import TwistStamped
 from std_msgs.msg import Bool
+from uav_msgs.srv import UCASelectAction, UCASelectActionResponse
+from uav_msgs.srv import UAVsInRange, UAVsInRangeResponse
 from pytorch_sac.sac import SAC
 
 UAV_COLLISION_ALTITUDE_THRESHOLD = 3
 UAV_SENSE_RANGE = 30
 DISTANCE_FACTOR = 100 / math.cos(math.pi/4)
-MAX_SPEED = 10  # 12 / math.cos(math.pi/4) 
+MAX_SPEED = 10
 MAX_ACCELERATION = 5
 UPDATE_RATE = 50
 
-class UAVCollisionAvoidanceNode():
-    def __init__(self, current_uav_namespace):
-        self.namespace = current_uav_namespace        
+class UAVCollisionAvoidanceServerNode():
+    def __init__(self):             
         self.uav_namespaces = self.get_all_uav_namespaces()
-        self.sub_to_all_uavs(self.uav_namespaces)
-        self.target = None
-        self.prev_velocity = np.zeros(2)        
-        self.cmd_vel_pub = rospy.Publisher('uav_controller/cmd_vel', TwistStamped, queue_size=1)
-        self.uav_in_range_pub = rospy.Publisher('uav_controller/uav_in_range', Bool, queue_size=1)
-        self.enabled = rospy.get_param('enabled_at_start', True)
-        rospy.Subscriber('uav_collision_avoidance/target', Vector3, self.target_callback)
-        rospy.Subscriber('uav_collision_avoidance/enabled', Bool, self.enabled_callback)
-        agent = SAC(10, 2) # 10 observations, 2 actions
+        self.sub_to_all_uavs(self.uav_namespaces)         
+        rospy.Service('uav_collision_avoidance/select_action', UCASelectAction, self.handle_action_selection)
+        rospy.Service('uav_collision_avoidance/uavs_in_range', UAVsInRange, self.handle_uavs_in_range)
+        use_cpu = rospy.get_param('use_cpu', False)
+        self.agent = SAC(10, 2, use_cpu=use_cpu) # 10 observations, 2 actions
         rospack = rospkg.RosPack()                
         path = rospack.get_path('uav_collision_avoidance')        
         path = os.path.join(path, 'weights')        
-        agent.load_checkpoint(path, evaluate=True)
+        self.agent.load_checkpoint(path, evaluate=True)
+     
+    def handle_action_selection(self, req):
+        ns = req.uavNamespace
+        target = req.target
+        target = np.array([target.x, target.y])
 
-        rate = rospy.Rate(UPDATE_RATE) # 50Hz
-        while True:
-            if self.target is not None and self.enabled:
-                observation = self.get_observation()                
-                action = agent.select_action(observation, evaluate=True)                
-                self.public_action(action)
+        response = UCASelectActionResponse()
+        if ns not in self.uav_namespaces:
+            response.success = False            
+        else:            
+            observation = self.get_observation(ns, target)                
+            action = self.agent.select_action(observation, evaluate=True)            
+            v = (action[0]/2+0.5) * MAX_SPEED
+            theta = action[1] * math.pi
+            converted_action = Vector3()
+            converted_action.x = v*math.cos(theta)
+            converted_action.y = v*math.sin(theta)
+            response.action = converted_action
+            response.success = True
+            # print("%s: %.2f, %.2f" % (ns, converted_action.x, converted_action.y))
+        
+        return response
 
-            uavs_in_range = self.uavs[self.namespace].uavs_in_range(list(self.uavs.values()), UAV_SENSE_RANGE)
-            if len(uavs_in_range) > 0:
-                self.uav_in_range_pub.publish(True)
-            else:
-                self.uav_in_range_pub.publish(False)
+    def handle_uavs_in_range(self, req):
+        ns = req.uavNamespace        
 
-            rate.sleep()
-                        
-
-    def target_callback(self, data):
-        self.target = np.array([data.x, data.y])
-        self.prev_velocity = self.uavs[self.namespace].velocity
-
-    def enabled_callback(self, data):
-        self.enabled = data
+        response = UAVsInRangeResponse()
+        if ns not in self.uav_namespaces:
+            response.success = False            
+        else:                
+            current_uav = self.uavs[ns]
+            uavs_in_range = current_uav.uavs_in_range(list(self.uavs.values()), UAV_SENSE_RANGE)
+            uav_key_list = list(self.uavs.keys())
+            uav_value_list = list(self.uavs.values())
+            uav_namespace_list = []
+            for uav in uavs_in_range:
+                uav_namespace_list.append(uav_key_list[uav_value_list.index(uav)])
+            response.uavs = uav_namespace_list
+            response.success = True
+        
+        return response
 
     def get_all_uav_namespaces(self):
         uav_namespaces = []
@@ -79,48 +96,22 @@ class UAVCollisionAvoidanceNode():
         for ns in namespaces:
             self.uavs[ns] = UAV()
             rospy.Subscriber('/{}/ground_truth/state'.format(ns), Odometry, self.uav_pose_callbacks, ns)
-
     
     def uav_pose_callbacks(self, data, namespace):        
         self.uavs[namespace].position[0] = data.pose.pose.position.x
         self.uavs[namespace].position[1] = data.pose.pose.position.y
         self.uavs[namespace].velocity[0] = data.twist.twist.linear.x
         self.uavs[namespace].velocity[1] = data.twist.twist.linear.y
-        self.uavs[namespace].altitude = data.pose.pose.position.z
+        self.uavs[namespace].altitude = data.pose.pose.position.z    
 
-    def public_action(self, action):
-        v = (action[0]/2+0.5) * MAX_SPEED
-        theta = action[1] * math.pi        
-        vx = v*math.cos(theta)
-        vy = v*math.sin(theta)     
-        target_velocity = np.array([vx ,vy])
-
-        current_agent = self.uavs[self.namespace]
-        max_acceleration = np.array([MAX_ACCELERATION, MAX_ACCELERATION])
-        max_speed = np.array([MAX_SPEED, MAX_SPEED])
-        dt = (1/UPDATE_RATE)
-        dv = np.clip((target_velocity - self.prev_velocity)/dt, -max_acceleration, max_acceleration)
-        target_velocity = np.clip(self.prev_velocity + dv * dt, -max_speed, max_speed)
-        self.prev_velocity = target_velocity
-
-        msg = TwistStamped()
-        h = std_msgs.msg.Header()
-        h.stamp = rospy.Time.now() # Note you need to call rospy.init_node() before this will work
-        msg.header = h
-        msg.twist.linear.x = target_velocity[0]
-        msg.twist.linear.y = target_velocity[1]
-        msg.twist.linear.z = 0
-
-        self.cmd_vel_pub.publish(msg)
-
-    def get_observation(self):
-        current_agent = self.uavs[self.namespace]
+    def get_observation(self, uav_namespace, target):
+        current_agent = self.uavs[uav_namespace]
         normalized_agent_speed = np.linalg.norm(current_agent.velocity) / MAX_SPEED
         agent_theta = math.atan2(current_agent.velocity[1], current_agent.velocity[0])
         normalized_agent_theta = agent_theta / math.pi
-        normalized_target_distance = np.linalg.norm(self.target - current_agent.position) / DISTANCE_FACTOR
+        normalized_target_distance = np.linalg.norm(target - current_agent.position) / DISTANCE_FACTOR
         normalized_target_distance = min(normalized_target_distance, 1)        
-        target_theta = math.atan2((self.target - current_agent.position)[1], (self.target - current_agent.position)[0])
+        target_theta = math.atan2((target - current_agent.position)[1], (target - current_agent.position)[0])
         delta_theta = target_theta - agent_theta
         delta_theta = math.atan2(math.sin(delta_theta), math.cos(delta_theta))
         normalized_delta_theta = delta_theta / math.pi
@@ -192,13 +183,13 @@ class UAV():
     
 if __name__ == '__main__':    
     # Initialize the node and name it.
-    rospy.init_node('uav_collision_avoidance_node')
-    rospy.loginfo('UAV Collision Node Start...')
+    rospy.init_node('uav_collision_avoidance_server_node')
+    rospy.loginfo('UAV Collision Server Node Start...')
     rospy.loginfo('Using {}'.format(torch.device("cuda" if torch.cuda.is_available() else "cpu")) )
 
     # Go to class functions that do all the heavy lifting. Do error checking.    
     try:          
-        node = UAVCollisionAvoidanceNode(rospy.get_namespace().split('/')[1])
+        node = UAVCollisionAvoidanceServerNode()
     except rospy.ROSInterruptException:
         pass
 

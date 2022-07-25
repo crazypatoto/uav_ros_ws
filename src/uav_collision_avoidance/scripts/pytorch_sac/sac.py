@@ -7,7 +7,7 @@ from pytorch_sac.model import GaussianPolicy, QNetwork
 
 
 class SAC(object):
-    def __init__(self, n_states, n_actions, lr=3e-4, tau=5e-3, gamma=0.99, alpah=20, target_update_interval=1, automatic_entropy_tuning=True):
+    def __init__(self, n_states, n_actions, lr=3e-4, tau=5e-3, gamma=0.99, alpah=20, target_update_interval=1, automatic_entropy_tuning=True, use_cpu=False):
 
         self.lr = lr
         self.tau = tau
@@ -17,7 +17,7 @@ class SAC(object):
         self.target_update_interval = target_update_interval
         self.automatic_entropy_tuning = automatic_entropy_tuning
 
-        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        self.device = torch.device("cuda" if torch.cuda.is_available() and not use_cpu else "cpu")
 
         self.critic = QNetwork(n_states, n_actions).to(device=self.device)
         self.critic_optim = Adam(self.critic.parameters(), lr=self.lr)

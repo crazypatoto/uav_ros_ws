@@ -10,7 +10,7 @@
     <arg name="vehicle" default="iris" />
     <arg name="world" default="$(find uav_gazebo)/worlds/empty.world" />
     <!-- gazebo configs -->
-    <arg name="gui" default="true" />
+    <arg name="gui" default="false" />
     <arg name="debug" default="false" />
     <arg name="verbose" default="false" />
     <arg name="paused" default="false" />
@@ -31,7 +31,7 @@
         <arg name="fcu_local_port" default="$(eval 14580 + arg('ID'))" />
         <arg name="fcu_remote_port" default="$(eval 14540 + arg('ID'))" />
         <arg name="fcu_url" default="udp://:$(arg fcu_remote_port)@localhost:$(arg fcu_local_port)" />
-        <arg name="x" value="-20" />
+        <arg name="x" value="-30" />
         <arg name="y" value="0" />
         <arg name="z" value="0" />
         <arg name="R" value="0" />
@@ -73,11 +73,11 @@
             <param name="Kv_x" value="5.0" />
             <param name="Kv_y" value="5.0" />
             <param name="Kv_z" value="3.0" />
-            <param name="P_x" value="5.0" />
-            <param name="P_y" value="5.0" />
+            <param name="P_x" value="1.5" />
+            <param name="P_y" value="1.5" />
             <param name="P_z" value="3.0" />
-            <param name="I_x" value="0.5" />
-            <param name="I_y" value="0.5" />
+            <param name="I_x" value="0.3" />
+            <param name="I_y" value="0.3" />
             <param name="I_z" value="0.3" />
             <param name="D_x" value="0.01" />
             <param name="D_y" value="0.01" />
@@ -86,7 +86,8 @@
             <!--Use ground truth pose from gazebo plugin-->
             <param name="use_groudtruth" value="true" />
             <param name="auto_takeoff" value="true" />
-            <param name="posehistory_window" value="10000"/>
+            <param name="posehistory_window" value="3000" />
+            <param name="collision_avoidance_enabled" value="true" />
         </node>
 
         <!-- UAV Mission Handler -->
@@ -103,7 +104,7 @@
         <arg name="fcu_local_port" default="$(eval 14580 + arg('ID'))" />
         <arg name="fcu_remote_port" default="$(eval 14540 + arg('ID'))" />
         <arg name="fcu_url" default="udp://:$(arg fcu_remote_port)@localhost:$(arg fcu_local_port)" />
-        <arg name="x" value="20" />
+        <arg name="x" value="30" />
         <arg name="y" value="0" />
         <arg name="z" value="0" />
         <arg name="R" value="0" />
@@ -145,11 +146,11 @@
             <param name="Kv_x" value="5.0" />
             <param name="Kv_y" value="5.0" />
             <param name="Kv_z" value="3.0" />
-            <param name="P_x" value="5.0" />
-            <param name="P_y" value="5.0" />
+            <param name="P_x" value="1.5" />
+            <param name="P_y" value="1.5" />
             <param name="P_z" value="3.0" />
-            <param name="I_x" value="0.5" />
-            <param name="I_y" value="0.5" />
+            <param name="I_x" value="0.3" />
+            <param name="I_y" value="0.3" />
             <param name="I_z" value="0.3" />
             <param name="D_x" value="0.01" />
             <param name="D_y" value="0.01" />
@@ -158,7 +159,8 @@
             <!--Use ground truth pose from gazebo plugin-->
             <param name="use_groudtruth" value="true" />
             <param name="auto_takeoff" value="true" />
-            <param name="posehistory_window" value="10000"/>
+            <param name="posehistory_window" value="3000" />
+            <param name="collision_avoidance_enabled" value="true" />
         </node>
 
         <!-- UAV Mission Handler -->
@@ -176,7 +178,7 @@
         <arg name="fcu_remote_port" default="$(eval 14540 + arg('ID'))" />
         <arg name="fcu_url" default="udp://:$(arg fcu_remote_port)@localhost:$(arg fcu_local_port)" />
         <arg name="x" value="0" />
-        <arg name="y" value="-20" />
+        <arg name="y" value="-30" />
         <arg name="z" value="0" />
         <arg name="R" value="0" />
         <arg name="P" value="0" />
@@ -217,11 +219,11 @@
             <param name="Kv_x" value="5.0" />
             <param name="Kv_y" value="5.0" />
             <param name="Kv_z" value="3.0" />
-            <param name="P_x" value="5.0" />
-            <param name="P_y" value="5.0" />
+            <param name="P_x" value="1.5" />
+            <param name="P_y" value="1.5" />
             <param name="P_z" value="3.0" />
-            <param name="I_x" value="0.5" />
-            <param name="I_y" value="0.5" />
+            <param name="I_x" value="0.3" />
+            <param name="I_y" value="0.3" />
             <param name="I_z" value="0.3" />
             <param name="D_x" value="0.01" />
             <param name="D_y" value="0.01" />
@@ -230,7 +232,8 @@
             <!--Use ground truth pose from gazebo plugin-->
             <param name="use_groudtruth" value="true" />
             <param name="auto_takeoff" value="true" />
-            <param name="posehistory_window" value="10000"/>
+            <param name="posehistory_window" value="3000" />
+            <param name="collision_avoidance_enabled" value="true" />
         </node>
 
         <!-- UAV Mission Handler -->
@@ -248,7 +251,7 @@
         <arg name="fcu_remote_port" default="$(eval 14540 + arg('ID'))" />
         <arg name="fcu_url" default="udp://:$(arg fcu_remote_port)@localhost:$(arg fcu_local_port)" />
         <arg name="x" value="0" />
-        <arg name="y" value="20" />
+        <arg name="y" value="30" />
         <arg name="z" value="0" />
         <arg name="R" value="0" />
         <arg name="P" value="0" />
@@ -289,11 +292,11 @@
             <param name="Kv_x" value="5.0" />
             <param name="Kv_y" value="5.0" />
             <param name="Kv_z" value="3.0" />
-            <param name="P_x" value="5.0" />
-            <param name="P_y" value="5.0" />
+            <param name="P_x" value="1.5" />
+            <param name="P_y" value="1.5" />
             <param name="P_z" value="3.0" />
-            <param name="I_x" value="0.5" />
-            <param name="I_y" value="0.5" />
+            <param name="I_x" value="0.3" />
+            <param name="I_y" value="0.3" />
             <param name="I_z" value="0.3" />
             <param name="D_x" value="0.01" />
             <param name="D_y" value="0.01" />
@@ -302,7 +305,8 @@
             <!--Use ground truth pose from gazebo plugin-->
             <param name="use_groudtruth" value="true" />
             <param name="auto_takeoff" value="true" />
-            <param name="posehistory_window" value="10000"/>
+            <param name="posehistory_window" value="3000" />
+            <param name="collision_avoidance_enabled" value="true" />
         </node>
 
         <!-- UAV Mission Handler -->
@@ -312,7 +316,27 @@
         </node> -->
     </group>
 
-    <node type="rviz" name="rviz" pkg="rviz" args="-d $(find uav_launch)/rviz/uav_collision_test.rviz" />
+    <!-- UAV0 -->
+    <group ns="uav0">
+        <node pkg="uav_collision_avoidance" type="uav_collision_avoidance_server.py" name="uav_collision_avoidance" output="screen" />
+    </group>
+
+    <!-- UAV1 -->
+    <group ns="uav1">
+        <node pkg="uav_collision_avoidance" type="uav_collision_avoidance_server.py" name="uav_collision_avoidance" output="screen" />
+    </group>
+
+    <!-- UAV2 -->
+    <group ns="uav2">
+        <node pkg="uav_collision_avoidance" type="uav_collision_avoidance_server.py" name="uav_collision_avoidance" output="screen" />
+    </group>
+
+    <!-- UAV3 -->
+    <group ns="uav3">
+        <node pkg="uav_collision_avoidance" type="uav_collision_avoidance_server.py" name="uav_collision_avoidance" output="screen" />
+    </group>
+    
+    <node type="rviz" name="rviz" pkg="rviz" args="-d $(find uav_collision_avoidance)/rviz/uav_collision_test.rviz" />
     <!-- Launch rqt_reconfigure -->
     <!-- <node pkg="rqt_reconfigure" type="rqt_reconfigure" output="screen" name="rqt_reconfigure" /> -->
 

@@ -1,0 +1,4 @@
+string uavNamespace
+---
+string[] uavs
+bool success

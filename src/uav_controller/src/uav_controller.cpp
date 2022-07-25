@@ -5,6 +5,11 @@ using namespace std;
 
 UAVController::UAVController(const ros::NodeHandle &nh, const ros::NodeHandle &nh_private) : nh_(nh), nh_private_(nh_private)
 {
+    // Get current namespace
+    namespace_ = ros::this_node::getNamespace();
+    namespace_.erase(remove(namespace_.begin(), namespace_.end(), '/'), namespace_.end()); // remove '/' from string
+    ROS_INFO_STREAM("Current Namespace: " << namespace_);
+
     // Initialize subscribers
     mavStateSub_ = nh_.subscribe("mavros/state", 1, &UAVController::mavstateCallback, this, ros::TransportHints().tcpNoDelay());
     groundTruthSub_ = nh_.subscribe("ground_truth/state", 1, &UAVController::groundTruthCallback, this, ros::TransportHints().tcpNoDelay());
@@ -19,11 +24,12 @@ UAVController::UAVController(const ros::NodeHandle &nh, const ros::NodeHandle &n
     referencePosePub_ = nh_.advertise<geometry_msgs::PoseStamped>("uav_controller/reference/pose", 1);
     posehistoryPub_ = nh_.advertise<nav_msgs::Path>("uav_controller/path", 10);
     referenceTrajPub_ = nh_.advertise<nav_msgs::Path>("uav_controller/reference/trajectory", 10);
-    cmdVelPub_ = nh_.advertise<geometry_msgs::TwistStamped>("mavros/setpoint_velocity/cmd_vel", 1);
 
     // Initialize service clients
     armingClient_ = nh_.serviceClient<mavros_msgs::CommandBool>("mavros/cmd/arming");
     setModeClient_ = nh_.serviceClient<mavros_msgs::SetMode>("mavros/set_mode");
+    ucaClient_ = nh_.serviceClient<uav_msgs::UCASelectAction>("uav_collision_avoidance/select_action");
+    uavsInRangeClient_ = nh_.serviceClient<uav_msgs::UAVsInRange>("uav_collision_avoidance/uavs_in_range");
 
     // Initialize service servers
     takeoffServer_ = nh_.advertiseService("uav_controller/takeoff", &UAVController::takeoffServiceCallback, this);
@@ -43,8 +49,11 @@ UAVController::UAVController(const ros::NodeHandle &nh, const ros::NodeHandle &n
     nh_private_.param<double>("normalizedthrust_constant", norm_thrust_const_, 0.063); // 1 / max acceleration
     nh_private_.param<double>("normalizedthrust_offset", norm_thrust_offset_, 0.1);    // 1 / max acceleration
     nh_private_.param<int>("posehistory_window", posehistory_window_, 1000);
-    nh_private_.param<double>("trajectory_max_vel_x", trajectory_max_vel_x_, 12.0);
-    nh_private_.param<double>("trajectory_max_vel_y", trajectory_max_vel_y_, 12.0);
+    nh_private_.param<bool>("collision_avoidance_enabled", collision_avoidance_enabled_, false);
+    nh_private_.param<double>("collision_avoidance_maximum_acceleration", uca_max_acc_, 5);
+    // Trajectory Generation Parameters
+    nh_private_.param<double>("trajectory_max_vel_x", trajectory_max_vel_x_, 7.0);
+    nh_private_.param<double>("trajectory_max_vel_y", trajectory_max_vel_y_, 7.0);
     nh_private_.param<double>("trajectory_max_vel_z", trajectory_max_vel_z_, 9.0);
     nh_private_.param<double>("trajectory_max_acc_x", trajectory_max_acc_x_, 4.0);
     nh_private_.param<double>("trajectory_max_acc_y", trajectory_max_acc_y_, 4.0);
@@ -82,6 +91,7 @@ UAVController::UAVController(const ros::NodeHandle &nh, const ros::NodeHandle &n
     P_ << P_x_, P_y_, P_z_;
     I_ << I_x_, I_y_, I_z_;
     D_ << D_x_, D_y_, D_z_;
+    ucaMaxAcc_ << uca_max_acc_, uca_max_acc_, uca_max_acc_;
 
     // Initialize timers
     statusLoopTimer_ = nh_.createTimer(ros::Duration(0.1), &UAVController::statusLoopCallback, this);    // Define timer for constant loop rate
@@ -204,7 +214,7 @@ void UAVController::controlLoopCallback(const ros::TimerEvent &event)
     case TAKING_OFF:
         targetPos_ << homePose_.position.x, homePose_.position.y, initTargetPos_z_;
         targetWayPointPos_ << targetPos_;
-        desired_acc = controlPosition(targetPos_, targetVel_, targetAcc_);
+        desired_acc = controlPosition(targetPos_, targetVel_, targetAcc_, 0);
         computeBodyRateCmd(cmdBodyRate_, desired_acc);
         pubReferencePose(targetPos_, q_des);
         pubRateCommands(cmdBodyRate_, q_des);
@@ -218,32 +228,76 @@ void UAVController::controlLoopCallback(const ros::TimerEvent &event)
         }
         break;
     case FLYING:
-        ruckigResult_ = ruckig_.update(ruckigInput_, ruckigOutput_);
-        if (ruckigResult_ == Result::Working)
+        if (!cmdVelReceived_)
         {
-            targetPos_ << ruckigOutput_.new_position[0], ruckigOutput_.new_position[1], ruckigOutput_.new_position[2];
-            targetVel_ << ruckigOutput_.new_velocity[0], ruckigOutput_.new_velocity[1], ruckigOutput_.new_velocity[2];
-            targetAcc_ << ruckigOutput_.new_acceleration[0], ruckigOutput_.new_acceleration[1], ruckigOutput_.new_acceleration[2];
-
-            if (velocity_yaw_preset_)
+            if (collision_avoidance_enabled_)
             {
-                velocity_yaw_ = true;
+                isUAVInRange_ = checkIfUAVInRange();
+                bool closeToTarget;
+                closeToTarget = (targetWayPointPos_ - mavPos_).norm() < MINIMUM_UCA_TRAGET_DISTANCE;
+                if ((!isUAVInRange_ || closeToTarget) && avoidingCollisions_) // If there is no longer any UAV in range or close to target, recalculate trajectory and stop avoding UAVs
+                {
+                    ROS_INFO("Stop avoiding...");
+                    avoidingCollisions_ = false;
+                    travelToTargetWaypoint();
+                    pubRefTraj();
+                }
+                else if (isUAVInRange_ && !waypointArrived_ && !closeToTarget && !avoidingCollisions_)
+                {
+                    ROS_INFO("Start avoiding...");
+                    avoidingCollisions_ = true;
+                    targetVel_prev_ = mavVel_; 
+                    targetPos_ << targetWayPointPos_;
+                }
+
+                isUAVInRangePrev_ = isUAVInRange_;
             }
-            // ROS_INFO_STREAM("targetPos_: " << targetPos_);
-            // ROS_INFO_STREAM("targetVel_: " << targetVel_);
-            // ROS_INFO_STREAM("targetAcc_: " << targetAcc_);
-            ruckigOutput_.pass_to_input(ruckigInput_);
+
+            if (!avoidingCollisions_)
+            {
+                ruckigResult_ = ruckig_.update(ruckigInput_, ruckigOutput_);
+                if (ruckigResult_ == Result::Working)
+                {
+                    targetPos_ << ruckigOutput_.new_position[0], ruckigOutput_.new_position[1], ruckigOutput_.new_position[2];
+                    targetVel_ << ruckigOutput_.new_velocity[0], ruckigOutput_.new_velocity[1], ruckigOutput_.new_velocity[2];
+                    targetAcc_ << ruckigOutput_.new_acceleration[0], ruckigOutput_.new_acceleration[1], ruckigOutput_.new_acceleration[2];
+
+                    if (velocity_yaw_preset_)
+                    {
+                        velocity_yaw_ = true;
+                    }
+                    // ROS_INFO_STREAM("targetPos_: " << targetPos_);
+                    // ROS_INFO_STREAM("targetVel_: " << targetVel_);
+                    // ROS_INFO_STREAM("targetAcc_: " << targetAcc_);
+                    ruckigOutput_.pass_to_input(ruckigInput_);
+                }
+                else if (ruckigResult_ == Result::Finished)
+                {
+                    if ((distance(targetWayPointPos_, mavPos_) < TARGET_REACH_POS_THRESHOLD) && (mavVel_.norm() < TARGET_REACH_VEL_THRESHOLD))
+                    {
+                        waypointArrived_ = true;
+                    }
+                    velocity_yaw_ = false;
+                }
+                desired_acc = controlPosition(targetPos_, targetVel_, targetAcc_, 0);
+            }
+            else // Otherwise get action from AI model
+            {
+                Eigen::Vector3d deltaVel;
+                targetVel_ = chooseAction();  
+                deltaVel = (targetVel_ - targetVel_prev_) / 0.01;
+                deltaVel = deltaVel.cwiseMax(-ucaMaxAcc_).cwiseMin(ucaMaxAcc_);
+                targetVel_ = targetVel_prev_ + (deltaVel * 0.01);
+                targetVel_(2) = 0;
+                targetVel_prev_ = targetVel_;
+                desired_acc = controlPosition(targetPos_, targetVel_, targetAcc_, 1);
+            }
         }
-        else if (ruckigResult_ == Result::Finished)
+        else
         {
-            if ((distance(targetPos_, mavPos_) < TARGET_REACH_POS_THRESHOLD) && (mavVel_.norm() < TARGET_REACH_VEL_THRESHOLD))
-            {
-                waypointArrived_ = true;
-            }
-            velocity_yaw_ = false;
+            desired_acc = controlPosition(targetPos_, targetVel_, targetAcc_, 1);
         }
 
-        desired_acc = controlPosition(targetPos_, targetVel_, targetAcc_);
         computeBodyRateCmd(cmdBodyRate_, desired_acc);
         pubReferencePose(targetPos_, q_des);
         pubRateCommands(cmdBodyRate_, q_des);
@@ -328,10 +382,12 @@ void UAVController::publishCompanionState()
     companionStatusPub_.publish(msg);
 }
 
-Eigen::Vector3d UAVController::controlPosition(const Eigen::Vector3d &target_pos, const Eigen::Vector3d &target_vel, const Eigen::Vector3d &target_acc)
+Eigen::Vector3d UAVController::controlPosition(const Eigen::Vector3d &target_pos, const Eigen::Vector3d &target_vel, const Eigen::Vector3d &target_acc, const int mode)
 {
     /// Compute BodyRate commands using differential flatness
     /// Controller based on Faessler 2017
+    /// Mode 0: Original position controller; Mode 1: Simple Cascade PID position-velocity controller (position control in Z axis only)
+
     const Eigen::Vector3d a_ref = target_acc;
     if (velocity_yaw_)
     {
@@ -345,9 +401,8 @@ Eigen::Vector3d UAVController::controlPosition(const Eigen::Vector3d &target_pos
     const Eigen::Vector3d vel_error = mavVel_ - target_vel;
 
     // Position Controller
-
     Eigen::Vector3d a_fb;
-    if (cmdVelReceived_)
+    if (mode)
     {
         a_fb = posvelcontroller();
     }
@@ -406,10 +461,8 @@ Eigen::Vector3d UAVController::posvelcontroller()
 {
     static Eigen::Vector3d vel_int, vel_error_last;
     Eigen::Vector3d pos_error = targetPos_ - mavPos_;
-    if (cmdVelReceived_)
-    {
-        pos_error << 0, 0, pos_error(2);
-    }
+
+    pos_error << 0, 0, pos_error(2); // Ignore X, Y axis positional error
 
     Eigen::Vector3d vel_sp_position = Kpos_.asDiagonal() * -pos_error;
     Eigen::Vector3d vel_sp = targetVel_ + vel_sp_position;
@@ -572,6 +625,33 @@ void UAVController::travelToTargetWaypoint()
     ruckigInput_.max_velocity = {trajectory_max_vel_x_, trajectory_max_vel_y_, trajectory_max_vel_z_};
     ruckigInput_.max_acceleration = {trajectory_max_acc_x_, trajectory_max_acc_y_, trajectory_max_acc_z_};
     ruckigInput_.max_jerk = {trajectory_max_jerk_x_, trajectory_max_jerk_y_, trajectory_max_jerk_z_};
+}
+
+Eigen::Vector3d UAVController::chooseAction()
+{
+    Eigen::Vector3d vel;
+    uav_msgs::UCASelectAction srv;
+    srv.request.uavNamespace = namespace_;
+    srv.request.target.x = targetPos_(0);
+    srv.request.target.y = targetPos_(1);
+    srv.request.target.z = targetPos_(2);
+    if (ucaClient_.call(srv) && srv.response.success)
+    {
+        vel << srv.response.action.x, srv.response.action.y, srv.response.action.z;
+    }
+
+    return vel;
+}
+
+bool UAVController::checkIfUAVInRange()
+{
+    uav_msgs::UAVsInRange srv;
+    srv.request.uavNamespace = namespace_;
+    if (uavsInRangeClient_.call(srv) && srv.response.success)
+    {
+        return srv.response.uavs.size() > 0;
+    }
+    return false;
 }
 
 void UAVController::dynamicReconfigureCallback(uav_controller::UAVControllerConfig &config, uint32_t level)
