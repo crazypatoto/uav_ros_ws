@@ -9,7 +9,7 @@
     <arg name="vehicle" default="iris" />
     <arg name="world" default="$(find uav_gazebo)/worlds/ntu_campus.world" />
     <!-- gazebo configs -->
-    <arg name="gui" default="true" />
+    <arg name="gui" default="false" />
     <arg name="debug" default="false" />
     <arg name="verbose" default="false" />
     <arg name="paused" default="false" />
@@ -621,7 +621,7 @@
         </node>
 
     </group>
-
+    
     <node type="rviz" name="rviz" pkg="rviz" args="-d $(find uav_launch)/rviz/campus.rviz" />
 
 </launch>

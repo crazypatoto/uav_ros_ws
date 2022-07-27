@@ -3,31 +3,93 @@
     <!-- Use gazebo simulation time -->
     <param name="/use_sim_time" value="true" />
 
-    <!-- UAV0 -->
-    <group ns="uav0">
-        <node pkg="uav_collision_avoidance" type="uav_collision_avoidance_node.py" name="uav_collision_avoidance" output="screen">
-            <param name="enabled_at_start" value="true" />
+    <!-- <group ns="uav0">
+        <node pkg="uav_collision_avoidance" type="uav_collision_avoidance_server.py" name="uav_collision_avoidance" output="screen">
+            <param name="use_cpu" value="false" />
         </node>
     </group>
-
-    <!-- UAV1 -->
+    
     <group ns="uav1">
-        <node pkg="uav_collision_avoidance" type="uav_collision_avoidance_node.py" name="uav_collision_avoidance" output="screen">
-            <param name="enabled_at_start" value="true" />
+        <node pkg="uav_collision_avoidance" type="uav_collision_avoidance_server.py" name="uav_collision_avoidance" output="screen">
+            <param name="use_cpu" value="false" />
         </node>
     </group>
 
-    <!-- UAV2 -->
     <group ns="uav2">
-        <node pkg="uav_collision_avoidance" type="uav_collision_avoidance_node.py" name="uav_collision_avoidance" output="screen">
-            <param name="enabled_at_start" value="true" />
+         <node pkg="uav_collision_avoidance" type="uav_collision_avoidance_server.py" name="uav_collision_avoidance" output="screen">
+            <param name="use_cpu" value="false" />
         </node>
     </group>
 
-    <!-- UAV3 -->
     <group ns="uav3">
-        <node pkg="uav_collision_avoidance" type="uav_collision_avoidance_node.py" name="uav_collision_avoidance" output="screen">
-            <param name="enabled_at_start" value="true" />
+        <node pkg="uav_collision_avoidance" type="uav_collision_avoidance_server.py" name="uav_collision_avoidance" output="screen">
+            <param name="use_cpu" value="false" />
+        </node>
+    </group>
+
+    <group ns="uav4">
+        <node pkg="uav_collision_avoidance" type="uav_collision_avoidance_server.py" name="uav_collision_avoidance" output="screen">
+            <param name="use_cpu" value="false" />
+        </node>
+    </group>
+
+    <group ns="uav5">
+        <node pkg="uav_collision_avoidance" type="uav_collision_avoidance_server.py" name="uav_collision_avoidance" output="screen">
+            <param name="use_cpu" value="false" />
+        </node>
+    </group>
+
+    <group ns="uav6">
+        <node pkg="uav_collision_avoidance" type="uav_collision_avoidance_server.py" name="uav_collision_avoidance" output="screen">
+            <param name="use_cpu" value="false" />
+        </node>
+    </group>
+
+    <group ns="uav7">
+        <node pkg="uav_collision_avoidance" type="uav_collision_avoidance_server.py" name="uav_collision_avoidance" output="screen">
+            <param name="use_cpu" value="true" />
+        </node>
+    </group>
+
+    <group ns="uav8">
+        <node pkg="uav_collision_avoidance" type="uav_collision_avoidance_server.py" name="uav_collision_avoidance" output="screen">
+            <param name="use_cpu" value="true" />
+        </node>
+    </group> -->
+
+    <!-- <group ns="uav9">
+        <node pkg="uav_collision_avoidance" type="uav_collision_avoidance_server.py" name="uav_collision_avoidance" output="screen">
+            <param name="use_cpu" value="false" />
+        </node>
+    </group>  -->
+
+    <group ns="server1">
+        <node pkg="uav_collision_avoidance" type="uav_collision_avoidance_server.py" name="uav_collision_avoidance" output="screen">
+            <param name="use_cpu" value="false" />
+        </node>
+    </group>
+
+    <group ns="server2">
+        <node pkg="uav_collision_avoidance" type="uav_collision_avoidance_server.py" name="uav_collision_avoidance" output="screen">
+            <param name="use_cpu" value="false" />
+        </node>
+    </group>
+
+    <group ns="server3">
+        <node pkg="uav_collision_avoidance" type="uav_collision_avoidance_server.py" name="uav_collision_avoidance" output="screen">
+            <param name="use_cpu" value="false" />
+        </node>
+    </group>
+
+    <group ns="server4">
+        <node pkg="uav_collision_avoidance" type="uav_collision_avoidance_server.py" name="uav_collision_avoidance" output="screen">
+            <param name="use_cpu" value="false" />
+        </node>
+    </group>
+
+    <group ns="server5">
+        <node pkg="uav_collision_avoidance" type="uav_collision_avoidance_server.py" name="uav_collision_avoidance" output="screen">
+            <param name="use_cpu" value="false" />
         </node>
     </group>
 

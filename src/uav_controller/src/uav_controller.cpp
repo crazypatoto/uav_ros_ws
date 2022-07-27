@@ -28,8 +28,6 @@ UAVController::UAVController(const ros::NodeHandle &nh, const ros::NodeHandle &n
     // Initialize service clients
     armingClient_ = nh_.serviceClient<mavros_msgs::CommandBool>("mavros/cmd/arming");
     setModeClient_ = nh_.serviceClient<mavros_msgs::SetMode>("mavros/set_mode");
-    ucaClient_ = nh_.serviceClient<uav_msgs::UCASelectAction>("uav_collision_avoidance/select_action");
-    uavsInRangeClient_ = nh_.serviceClient<uav_msgs::UAVsInRange>("uav_collision_avoidance/uavs_in_range");
 
     // Initialize service servers
     takeoffServer_ = nh_.advertiseService("uav_controller/takeoff", &UAVController::takeoffServiceCallback, this);
@@ -51,6 +49,7 @@ UAVController::UAVController(const ros::NodeHandle &nh, const ros::NodeHandle &n
     nh_private_.param<int>("posehistory_window", posehistory_window_, 1000);
     nh_private_.param<bool>("collision_avoidance_enabled", collision_avoidance_enabled_, false);
     nh_private_.param<double>("collision_avoidance_maximum_acceleration", uca_max_acc_, 5);
+    nh_private_.param<string>("uca_server_ns", uca_server_ns_, "server1");
     // Trajectory Generation Parameters
     nh_private_.param<double>("trajectory_max_vel_x", trajectory_max_vel_x_, 7.0);
     nh_private_.param<double>("trajectory_max_vel_y", trajectory_max_vel_y_, 7.0);
@@ -93,9 +92,20 @@ UAVController::UAVController(const ros::NodeHandle &nh, const ros::NodeHandle &n
     D_ << D_x_, D_y_, D_z_;
     ucaMaxAcc_ << uca_max_acc_, uca_max_acc_, uca_max_acc_;
 
+    // Initialize UAV Collision Avoidance Service Clients
+    ucaClient_ = nh_.serviceClient<uav_msgs::UCASelectAction>("/" + uca_server_ns_ + "/uav_collision_avoidance/select_action");
+    uavsInRangeClient_ = nh_.serviceClient<uav_msgs::UAVsInRange>("/" + uca_server_ns_ + "/uav_collision_avoidance/uavs_in_range");
+    if (collision_avoidance_enabled_)
+    {
+        ROS_INFO("Waiting for UAV Collision Avoidance Services Server...");
+        ucaClient_.waitForExistence();
+        uavsInRangeClient_.waitForExistence();
+    }
+
     // Initialize timers
     statusLoopTimer_ = nh_.createTimer(ros::Duration(0.1), &UAVController::statusLoopCallback, this);    // Define timer for constant loop rate
     controlLoopTimer_ = nh_.createTimer(ros::Duration(0.01), &UAVController::controlLoopCallback, this); // Define timer for constant loop rate
+    ucaLoopTimer_ = nh_.createTimer(ros::Duration(0.02), &UAVController::ucaLoopCallback, this);         // Define timer for constant loop rate
 }
 
 void UAVController::mavstateCallback(const mavros_msgs::State::ConstPtr &msg)
@@ -246,7 +256,7 @@ void UAVController::controlLoopCallback(const ros::TimerEvent &event)
                 {
                     ROS_INFO("Start avoiding...");
                     avoidingCollisions_ = true;
-                    targetVel_prev_ = mavVel_; 
+                    targetVel_prev_ = mavVel_;
                     targetPos_ << targetWayPointPos_;
                 }
 
@@ -279,19 +289,20 @@ void UAVController::controlLoopCallback(const ros::TimerEvent &event)
                     }
                     velocity_yaw_ = false;
                 }
-                desired_acc = controlPosition(targetPos_, targetVel_, targetAcc_, 0);
+                // desired_acc = controlPosition(targetPos_, targetVel_, targetAcc_, 0);
             }
-            else // Otherwise get action from AI model
-            {
-                Eigen::Vector3d deltaVel;
-                targetVel_ = chooseAction();  
-                deltaVel = (targetVel_ - targetVel_prev_) / 0.01;
-                deltaVel = deltaVel.cwiseMax(-ucaMaxAcc_).cwiseMin(ucaMaxAcc_);
-                targetVel_ = targetVel_prev_ + (deltaVel * 0.01);
-                targetVel_(2) = 0;
-                targetVel_prev_ = targetVel_;
-                desired_acc = controlPosition(targetPos_, targetVel_, targetAcc_, 1);
-            }
+            // else // Otherwise get action from AI model
+            // {
+            //     Eigen::Vector3d deltaVel;
+            //     targetVel_ = chooseAction();
+            //     deltaVel = (targetVel_ - targetVel_prev_) / 0.01;
+            //     deltaVel = deltaVel.cwiseMax(-ucaMaxAcc_).cwiseMin(ucaMaxAcc_);
+            //     targetVel_ = targetVel_prev_ + (deltaVel * 0.01);
+            //     targetVel_(2) = 0;
+            //     targetVel_prev_ = targetVel_;
+            //     desired_acc = controlPosition(targetPos_, targetVel_, targetAcc_, 1);
+            // }
+            desired_acc = controlPosition(targetPos_, targetVel_, targetAcc_, avoidingCollisions_);
         }
         else
         {
@@ -315,6 +326,20 @@ void UAVController::controlLoopCallback(const ros::TimerEvent &event)
             controllerState_ = WAITING_TAKEOFF_COMMAND;
         }
         break;
+    }
+}
+
+void UAVController::ucaLoopCallback(const ros::TimerEvent &event)
+{
+    if (avoidingCollisions_ && controllerState_ == FLYING)
+    {
+        Eigen::Vector3d deltaVel;
+        targetVel_ = chooseAction();
+        deltaVel = (targetVel_ - targetVel_prev_) / 0.02;
+        deltaVel = deltaVel.cwiseMax(-ucaMaxAcc_).cwiseMin(ucaMaxAcc_);
+        targetVel_ = targetVel_prev_ + (deltaVel * 0.02);
+        targetVel_(2) = 0;
+        targetVel_prev_ = targetVel_;
     }
 }
 

@@ -90,6 +90,7 @@ private:
     // Timers
     ros::Timer statusLoopTimer_;
     ros::Timer controlLoopTimer_;
+    ros::Timer ucaLoopTimer_;
 
     // Local Variables
     MAV_STATE companionState_ = MAV_STATE::MAV_STATE_UNINIT;
@@ -132,6 +133,7 @@ private:
     double trajectory_max_acc_x_, trajectory_max_acc_y_, trajectory_max_acc_z_;
     double trajectory_max_jerk_x_, trajectory_max_jerk_y_, trajectory_max_jerk_z_;
     double uca_max_acc_;    // UAV Collision Avoidance Maximum Acceleration
+    std::string uca_server_ns_; // UAV Collision Avoidance Server Namespace
     std::vector<geometry_msgs::PoseStamped> posehistory_vector_;
     int posehistory_window_;
     bool collision_avoidance_enabled_;
@@ -151,6 +153,7 @@ private:
     void cmdVelCallback(const geometry_msgs::TwistStamped &msg);    
     void statusLoopCallback(const ros::TimerEvent &event);
     void controlLoopCallback(const ros::TimerEvent &event);
+    void ucaLoopCallback(const ros::TimerEvent &event);
     bool takeoffServiceCallback(uav_msgs::Takeoff::Request &req, uav_msgs::Takeoff::Response &res);
     bool landServiceCallback(uav_msgs::Land::Request &req, uav_msgs::Land::Response &res);
     bool goHomeServiceCallback(uav_msgs::GoHome::Request &req, uav_msgs::GoHome::Response &res);

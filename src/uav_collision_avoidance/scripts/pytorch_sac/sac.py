@@ -17,7 +17,7 @@ class SAC(object):
         self.target_update_interval = target_update_interval
         self.automatic_entropy_tuning = automatic_entropy_tuning
 
-        self.device = torch.device("cuda" if torch.cuda.is_available() and not use_cpu else "cpu")
+        self.device = torch.device("cuda" if torch.cuda.is_available() and not use_cpu else "cpu")        
 
         self.critic = QNetwork(n_states, n_actions).to(device=self.device)
         self.critic_optim = Adam(self.critic.parameters(), lr=self.lr)

@@ -170,6 +170,7 @@ catkin_install_python(
   scripts/uav_collision_avoidance_node.py
   scripts/uav_collision_avoidance_server.py
   scripts/test_srv_speed.py
+  scripts/test.py
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 

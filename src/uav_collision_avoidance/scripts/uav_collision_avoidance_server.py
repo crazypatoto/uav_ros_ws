@@ -185,7 +185,7 @@ if __name__ == '__main__':
     # Initialize the node and name it.
     rospy.init_node('uav_collision_avoidance_server_node')
     rospy.loginfo('UAV Collision Server Node Start...')
-    rospy.loginfo('Using {}'.format(torch.device("cuda" if torch.cuda.is_available() else "cpu")) )
+    rospy.loginfo('Using {}'.format(torch.device("cuda" if torch.cuda.is_available() else "cpu")) )    
 
     # Go to class functions that do all the heavy lifting. Do error checking.    
     try:          

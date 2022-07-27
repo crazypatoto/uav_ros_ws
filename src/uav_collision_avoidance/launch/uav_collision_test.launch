@@ -88,6 +88,7 @@
             <param name="auto_takeoff" value="true" />
             <param name="posehistory_window" value="3000" />
             <param name="collision_avoidance_enabled" value="true" />
+            <param name="uca_server_ns" value="server1" />
         </node>
 
         <!-- UAV Mission Handler -->
@@ -161,6 +162,7 @@
             <param name="auto_takeoff" value="true" />
             <param name="posehistory_window" value="3000" />
             <param name="collision_avoidance_enabled" value="true" />
+            <param name="uca_server_ns" value="server2" />
         </node>
 
         <!-- UAV Mission Handler -->
@@ -234,6 +236,7 @@
             <param name="auto_takeoff" value="true" />
             <param name="posehistory_window" value="3000" />
             <param name="collision_avoidance_enabled" value="true" />
+            <param name="uca_server_ns" value="server3" />
         </node>
 
         <!-- UAV Mission Handler -->
@@ -307,6 +310,7 @@
             <param name="auto_takeoff" value="true" />
             <param name="posehistory_window" value="3000" />
             <param name="collision_avoidance_enabled" value="true" />
+            <param name="uca_server_ns" value="server4" />
         </node>
 
         <!-- UAV Mission Handler -->
@@ -317,24 +321,24 @@
     </group>
 
     <!-- UAV0 -->
-    <group ns="uav0">
+    <!-- <group ns="uav0">
         <node pkg="uav_collision_avoidance" type="uav_collision_avoidance_server.py" name="uav_collision_avoidance" output="screen" />
-    </group>
+    </group> -->
 
     <!-- UAV1 -->
-    <group ns="uav1">
+    <!-- <group ns="uav1">
         <node pkg="uav_collision_avoidance" type="uav_collision_avoidance_server.py" name="uav_collision_avoidance" output="screen" />
-    </group>
+    </group> -->
 
     <!-- UAV2 -->
-    <group ns="uav2">
+    <!-- <group ns="uav2">
         <node pkg="uav_collision_avoidance" type="uav_collision_avoidance_server.py" name="uav_collision_avoidance" output="screen" />
-    </group>
+    </group> -->
 
     <!-- UAV3 -->
-    <group ns="uav3">
+    <!-- <group ns="uav3">
         <node pkg="uav_collision_avoidance" type="uav_collision_avoidance_server.py" name="uav_collision_avoidance" output="screen" />
-    </group>
+    </group> -->
     
     <node type="rviz" name="rviz" pkg="rviz" args="-d $(find uav_collision_avoidance)/rviz/uav_collision_test.rviz" />
     <!-- Launch rqt_reconfigure -->
