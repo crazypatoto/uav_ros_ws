@@ -20,11 +20,11 @@ from uav_msgs.srv import UAVsInRange, UAVsInRangeResponse
 from pytorch_sac.sac import SAC
 
 UAV_COLLISION_ALTITUDE_THRESHOLD = 3
-UAV_SENSE_RANGE = 30
-DISTANCE_FACTOR = 100 / math.cos(math.pi/4)
+UAV_SENSE_RANGE = 15
+UAV_SENSET_TRIGGER_RANGE = 30
+DISTANCE_FACTOR = 50 / math.cos(math.pi/4)
 MAX_SPEED = 10
 MAX_ACCELERATION = 5
-UPDATE_RATE = 50
 
 class UAVCollisionAvoidanceServerNode():
     def __init__(self):             
@@ -69,7 +69,7 @@ class UAVCollisionAvoidanceServerNode():
             response.success = False            
         else:                
             current_uav = self.uavs[ns]
-            uavs_in_range = current_uav.uavs_in_range(list(self.uavs.values()), UAV_SENSE_RANGE)
+            uavs_in_range = current_uav.uavs_in_range(list(self.uavs.values()), UAV_SENSET_TRIGGER_RANGE)
             uav_key_list = list(self.uavs.keys())
             uav_value_list = list(self.uavs.values())
             uav_namespace_list = []

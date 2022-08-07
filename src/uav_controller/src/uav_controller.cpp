@@ -154,8 +154,15 @@ void UAVController::waypointCallback(const geometry_msgs::PoseStamped &msg)
     // ROS_INFO_STREAM("mavPos_: " << mavPos_);
     // ROS_INFO_STREAM("mavVel_: " << mavVel_);
     // ROS_INFO_STREAM("mavAcc_: " << mavAcc_);
-    travelToTargetWaypoint();
-    pubRefTraj();
+    if (!avoidingCollisions_)
+    {
+        travelToTargetWaypoint();
+        pubRefTraj();
+    }
+    else
+    {
+        targetPos_ << targetWayPointPos_;
+    }
 }
 
 void UAVController::cmdVelCallback(const geometry_msgs::TwistStamped &msg)
