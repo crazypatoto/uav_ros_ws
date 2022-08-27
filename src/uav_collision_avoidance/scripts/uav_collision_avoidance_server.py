@@ -21,9 +21,9 @@ from pytorch_sac.sac import SAC
 
 UAV_COLLISION_ALTITUDE_THRESHOLD = 3
 UAV_SENSE_RANGE = 15
-UAV_SENSET_TRIGGER_RANGE = 30
+UAV_SENSET_TRIGGER_RANGE = 15
 DISTANCE_FACTOR = 50 / math.cos(math.pi/4)
-MAX_SPEED = 10
+MAX_SPEED = 10 / math.cos(math.pi/4)
 MAX_ACCELERATION = 5
 
 class UAVCollisionAvoidanceServerNode():
@@ -34,6 +34,7 @@ class UAVCollisionAvoidanceServerNode():
         rospy.Service('uav_collision_avoidance/uavs_in_range', UAVsInRange, self.handle_uavs_in_range)
         use_cpu = rospy.get_param('use_cpu', False)
         self.agent = SAC(10, 2, use_cpu=use_cpu) # 10 observations, 2 actions
+        self.agent.select_action(np.zeros(10))
         rospack = rospkg.RosPack()                
         path = rospack.get_path('uav_collision_avoidance')        
         path = os.path.join(path, 'weights')        

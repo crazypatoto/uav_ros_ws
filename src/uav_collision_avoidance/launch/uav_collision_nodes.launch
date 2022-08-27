@@ -65,31 +65,31 @@
 
     <group ns="server1">
         <node pkg="uav_collision_avoidance" type="uav_collision_avoidance_server.py" name="uav_collision_avoidance" output="screen">
-            <param name="use_cpu" value="false" />
+            <param name="use_cpu" value="true" />
         </node>
     </group>
 
     <group ns="server2">
         <node pkg="uav_collision_avoidance" type="uav_collision_avoidance_server.py" name="uav_collision_avoidance" output="screen">
-            <param name="use_cpu" value="false" />
+            <param name="use_cpu" value="true" />
         </node>
     </group>
 
     <group ns="server3">
         <node pkg="uav_collision_avoidance" type="uav_collision_avoidance_server.py" name="uav_collision_avoidance" output="screen">
-            <param name="use_cpu" value="false" />
+            <param name="use_cpu" value="true" />
         </node>
     </group>
 
     <group ns="server4">
         <node pkg="uav_collision_avoidance" type="uav_collision_avoidance_server.py" name="uav_collision_avoidance" output="screen">
-            <param name="use_cpu" value="false" />
+            <param name="use_cpu" value="true" />
         </node>
     </group>
 
     <group ns="server5">
         <node pkg="uav_collision_avoidance" type="uav_collision_avoidance_server.py" name="uav_collision_avoidance" output="screen">
-            <param name="use_cpu" value="false" />
+            <param name="use_cpu" value="true" />
         </node>
     </group>
 

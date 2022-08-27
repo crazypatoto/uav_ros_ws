@@ -308,11 +308,12 @@ void UAVController::controlLoopCallback(const ros::TimerEvent &event)
             //     targetVel_(2) = 0;
             //     targetVel_prev_ = targetVel_;
             //     desired_acc = controlPosition(targetPos_, targetVel_, targetAcc_, 1);
-            // }
+            // }            
             desired_acc = controlPosition(targetPos_, targetVel_, targetAcc_, avoidingCollisions_);
         }
         else
         {
+            targetAcc_ << 0.0, 0.0, 0.0;
             desired_acc = controlPosition(targetPos_, targetVel_, targetAcc_, 1);
         }
 
