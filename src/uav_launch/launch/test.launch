@@ -95,9 +95,9 @@
         </node> -->
     </group>
 
-    <node type="rviz" name="rviz" pkg="rviz" args="-d $(find uav_launch)/rviz/test.rviz" />
+    <!-- <node type="rviz" name="rviz" pkg="rviz" args="-d $(find uav_launch)/rviz/test.rviz" /> -->
     <!-- Launch rqt_reconfigure -->
-    <node pkg="rqt_reconfigure" type="rqt_reconfigure" output="screen" name="rqt_reconfigure" />
+    <!-- <node pkg="rqt_reconfigure" type="rqt_reconfigure" output="screen" name="rqt_reconfigure" /> -->
 
 </launch> <!-- to add more UAVs (up to 10):
 Increase the id

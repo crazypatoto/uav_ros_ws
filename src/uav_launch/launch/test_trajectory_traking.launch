@@ -4,9 +4,6 @@
     <arg name="gcs_url" default="" />
     <arg name="tgt_system" default="1" />
     <arg name="tgt_component" default="1" />
-    <arg name="command_input" default="2" />
-    <arg name="gazebo_simulation" default="true" />
-    <arg name="visualization" default="true" />
     <arg name="log_output" default="screen" />
     <arg name="fcu_protocol" default="v2.0" />
     <arg name="respawn_mavros" default="false" />
@@ -14,8 +11,8 @@
     <node pkg="geometric_controller" type="geometric_controller_node" name="geometric_controller" output="screen">
         <param name="mav_name" type="string" value="$(arg mav_name)" />
         <remap from="command/bodyrate_command" to="/mavros/setpoint_raw/attitude" />
-        <param name="ctrl_mode" value="$(arg command_input)" />
-        <param name="enable_sim" value="$(arg gazebo_simulation)" />
+        <param name="ctrl_mode" value="2" />
+        <param name="enable_sim" value="true" />
         <param name="enable_gazebo_state" value="true" />
         <param name="max_acc" value="10.0" />
         <!--Params specific for Iris copter-->
@@ -34,15 +31,13 @@
     </node>
 
     <node pkg="trajectory_publisher" type="trajectory_publisher" name="trajectory_publisher" output="screen">
-        <param name="trajectory_type" value="1" />
-        <param name="shape_omega" value="2.0" />
+        <param name="trajectory_type" value="2" />
+        <param name="shape_omega" value="0.5" />
         <param name="initpos_z" value="2.0" />
         <param name="reference_type" value="2" />
     </node>
-
-    <!-- Launch rqt_reconfigure -->
-    <node pkg="rqt_reconfigure" type="rqt_reconfigure" output="screen" name="rqt_reconfigure" />
-
+    
+    
     <include file="$(find mavros)/launch/node.launch">
         <arg name="pluginlists_yaml" value="$(find mavros)/launch/px4_pluginlists.yaml" />
         <arg name="config_yaml" value="$(find mavros)/launch/px4_config.yaml" />
@@ -57,10 +52,12 @@
 
     <include file="$(find px4)/launch/posix_sitl.launch">
         <arg name="vehicle" value="$(arg mav_name)" />
+        <arg name="world" value="$(find uav_gazebo)/worlds/empty_wind.world"/>
+        <arg name="gui" value="false"/>
     </include>
+    
 
-    <group if="$(arg visualization)">
-        <node type="rviz" name="rviz" pkg="rviz" args="-d $(find geometric_controller)/launch/config_file.rviz" />
-    </group>
+
+    <node type="rviz" name="rviz" pkg="rviz" args="-d $(find uav_launch)/rviz/test_trajectory.rviz" />
 
 </launch>

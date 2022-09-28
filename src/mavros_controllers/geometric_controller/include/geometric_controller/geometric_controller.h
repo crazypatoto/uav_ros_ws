@@ -100,12 +100,13 @@ class geometricCtrl {
   ros::Subscriber mavstateSub_;
   ros::Subscriber mavposeSub_, gzmavposeSub_;
   ros::Subscriber mavtwistSub_;
-  ros::Subscriber groudTrurhSub_;
+  ros::Subscriber groudTruthSub_;  
   ros::Subscriber yawreferenceSub_;
   ros::Publisher rotorVelPub_, angularVelPub_, target_pose_pub_;
   ros::Publisher referencePosePub_;
   ros::Publisher posehistoryPub_;
   ros::Publisher systemstatusPub_;
+  ros::Publisher groudTruthPosePub_;  
   ros::ServiceClient arming_client_;
   ros::ServiceClient set_mode_client_;
   ros::ServiceServer ctrltriggerServ_;
@@ -141,6 +142,7 @@ class geometricCtrl {
   Eigen::Vector4d mavAtt_, q_des;
   Eigen::Vector4d cmdBodyRate_;  //{wx, wy, wz, Thrust}
   Eigen::Vector3d Kpos_, Kvel_, D_;
+  Eigen::Vector3d kP_, kI_, kD_;
   Eigen::Vector3d a0, a1, tau;
   double tau_x, tau_y, tau_z;
   double Kpos_x_, Kpos_y_, Kpos_z_, Kvel_x_, Kvel_y_, Kvel_z_;
@@ -151,6 +153,7 @@ class geometricCtrl {
   void pubMotorCommands();
   void pubRateCommands(const Eigen::Vector4d &cmd, const Eigen::Vector4d &target_attitude);
   void pubReferencePose(const Eigen::Vector3d &target_position, const Eigen::Vector4d &target_attitude);
+  void pubGroundTruthPose();
   void pubPoseHistory();
   void pubSystemStatus();
   void appendPoseHistory();
@@ -172,7 +175,7 @@ class geometricCtrl {
   void computeBodyRateCmd(Eigen::Vector4d &bodyrate_cmd, const Eigen::Vector3d &target_acc);
   Eigen::Vector3d controlPosition(const Eigen::Vector3d &target_pos, const Eigen::Vector3d &target_vel,
                                   const Eigen::Vector3d &target_acc);
-  Eigen::Vector3d poscontroller(const Eigen::Vector3d &pos_error, const Eigen::Vector3d &vel_error);
+  Eigen::Vector3d poscontroller(const Eigen::Vector3d &pos_error, const Eigen::Vector3d &vel_error);  
   Eigen::Vector4d attcontroller(const Eigen::Vector4d &ref_att, const Eigen::Vector3d &ref_acc,
                                 Eigen::Vector4d &curr_att);
   Eigen::Vector4d geometric_attcontroller(const Eigen::Vector4d &ref_att, const Eigen::Vector3d &ref_acc,
