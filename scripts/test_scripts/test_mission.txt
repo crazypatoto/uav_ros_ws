@@ -1,0 +1,262 @@
+rosservice call /uav0/uav_mission_handler/enqueue_order "order:
+  header:
+    seq: 0
+    stamp:
+      secs: 0
+      nsecs: 0
+    frame_id: ''
+  orderID: 0
+  missions:
+  - header:
+      seq: 0
+      stamp: {secs: 0, nsecs: 0}
+      frame_id: ''
+    packageID: 00
+    packageWeight: 1.0
+    destination: {x: 167, y: 214, z: 0.0}
+    finished: false
+  - header:
+      seq: 0
+      stamp: {secs: 0, nsecs: 0}
+      frame_id: ''
+    packageID: 01
+    packageWeight: 1.0
+    destination: {x: 176, y: 212, z: 0.0}
+    finished: false 
+  finished: false" &
+  
+rosservice call /uav1/uav_mission_handler/enqueue_order "order:
+  header:
+    seq: 0
+    stamp:
+      secs: 0
+      nsecs: 0
+    frame_id: ''
+  orderID: 0
+  missions:
+  - header:
+      seq: 0
+      stamp: {secs: 0, nsecs: 0}
+      frame_id: ''
+    packageID: 10
+    packageWeight: 1.0
+    destination: {x: 128, y: 170, z: 0.0}
+    finished: false
+  - header:
+      seq: 0
+      stamp: {secs: 0, nsecs: 0}
+      frame_id: ''
+    packageID: 11
+    packageWeight: 1.0
+    destination: {x: 140, y: 287, z: 0.0}
+    finished: false
+  - header:
+      seq: 0
+      stamp: {secs: 0, nsecs: 0}
+      frame_id: ''
+    packageID: 12
+    packageWeight: 1.0
+    destination: {x: 200, y: 272, z: 0.0}
+    finished: false
+  finished: false" &
+
+rosservice call /uav2/uav_mission_handler/enqueue_order "order:
+  header:
+    seq: 0
+    stamp:
+      secs: 0
+      nsecs: 0
+    frame_id: ''
+  orderID: 0
+  missions:
+  - header:
+      seq: 0
+      stamp: {secs: 0, nsecs: 0}
+      frame_id: ''
+    packageID: 20
+    packageWeight: 1.0
+    destination: {x: 140, y: 272.0, z: 0.0}
+    finished: false  
+  finished: false" &
+
+rosservice call /uav3/uav_mission_handler/enqueue_order "order:
+  header:
+    seq: 0
+    stamp:
+      secs: 0
+      nsecs: 0
+    frame_id: ''
+  orderID: 0
+  missions:
+  - header:
+      seq: 0
+      stamp: {secs: 0, nsecs: 0}
+      frame_id: ''
+    packageID: 30
+    packageWeight: 1.0
+    destination: {x: 110, y: 300, z: 0.0}
+    finished: false
+  - header:
+      seq: 0
+      stamp: {secs: 0, nsecs: 0}
+      frame_id: ''
+    packageID: 31
+    packageWeight: 1.0
+    destination: {x: 155, y: 310, z: 0.0}
+    finished: false
+  finished: false" &
+
+rosservice call /uav4/uav_mission_handler/enqueue_order "order:
+  header:
+    seq: 0
+    stamp:
+      secs: 0
+      nsecs: 0
+    frame_id: ''
+  orderID: 0
+  missions:
+  - header:
+      seq: 0
+      stamp: {secs: 0, nsecs: 0}
+      frame_id: ''
+    packageID: 40
+    packageWeight: 1.0
+    destination: {x: 167, y: 280.0, z: 0.0}
+    finished: false
+  - header:
+      seq: 0
+      stamp: {secs: 0, nsecs: 0}
+      frame_id: ''
+    packageID: 41
+    packageWeight: 1.0
+    destination: {x: 185, y: 332, z: 0.0}
+    finished: false
+  finished: false" &
+
+rosservice call /uav5/uav_mission_handler/enqueue_order "order:
+  header:
+    seq: 0
+    stamp:
+      secs: 0
+      nsecs: 0
+    frame_id: ''
+  orderID: 0
+  missions:
+  - header:
+      seq: 0
+      stamp: {secs: 0, nsecs: 0}
+      frame_id: ''
+    packageID: 50
+    packageWeight: 1.0
+    destination: {x: 170, y: 212, z: 0.0}
+    finished: false
+  - header:
+      seq: 0
+      stamp: {secs: 0, nsecs: 0}
+      frame_id: ''
+    packageID: 51
+    packageWeight: 1.0
+    destination: {x: 189, y: 190.0, z: 0.0}
+    finished: false
+  finished: false" &
+
+rosservice call /uav6/uav_mission_handler/enqueue_order "order:
+  header:
+    seq: 0
+    stamp:
+      secs: 0
+      nsecs: 0
+    frame_id: ''
+  orderID: 0
+  missions:
+  - header:
+      seq: 0
+      stamp: {secs: 0, nsecs: 0}
+      frame_id: ''
+    packageID: 60
+    packageWeight: 1.0
+    destination: {x: -10, y: 182, z: 0.0}
+    finished: false
+  - header:
+      seq: 0
+      stamp: {secs: 0, nsecs: 0}
+      frame_id: ''
+    packageID: 60
+    packageWeight: 1.0
+    destination: {x: 5, y: 137, z: 0.0}
+    finished: false
+  finished: false" &
+
+rosservice call /uav7/uav_mission_handler/enqueue_order "order:
+  header:
+    seq: 0
+    stamp:
+      secs: 0
+      nsecs: 0
+    frame_id: ''
+  orderID: 0
+  missions:
+  - header:
+      seq: 0
+      stamp: {secs: 0, nsecs: 0}
+      frame_id: ''
+    packageID: 70
+    packageWeight: 1.0
+    destination: {x: 90, y: 150.0, z: 0.0}
+    finished: false
+  - header:
+      seq: 0
+      stamp: {secs: 0, nsecs: 0}
+      frame_id: ''
+    packageID: 71
+    packageWeight: 1.0
+    destination: {x: 95, y: 137.0, z: 0.0}
+    finished: false
+  finished: false" &
+
+rosservice call /uav8/uav_mission_handler/enqueue_order "order:
+  header:
+    seq: 0
+    stamp:
+      secs: 0
+      nsecs: 0
+    frame_id: ''
+  orderID: 0
+  missions:
+  - header:
+      seq: 0
+      stamp: {secs: 0, nsecs: 0}
+      frame_id: ''
+    packageID: 80
+    packageWeight: 1.0
+    destination: {x: 80, y: 137, z: 0.0}
+    finished: false
+  - header:
+      seq: 0
+      stamp: {secs: 0, nsecs: 0}
+      frame_id: ''
+    packageID: 81
+    packageWeight: 1.0
+    destination: {x: 140, y: 164, z: 0.0}
+    finished: false
+  finished: false" &
+
+rosservice call /uav9/uav_mission_handler/enqueue_order "order:
+  header:
+    seq: 0
+    stamp:
+      secs: 0
+      nsecs: 0
+    frame_id: ''
+  orderID: 0
+  missions:
+  - header:
+      seq: 0
+      stamp: {secs: 0, nsecs: 0}
+      frame_id: ''
+    packageID: 90
+    packageWeight: 1.0
+    destination: {x: 65, y: 107, z: 0.0}
+    finished: false
+  finished: false" &
+

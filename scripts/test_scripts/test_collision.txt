@@ -1,0 +1,15 @@
+rostopic pub /uav0/uav_collision_avoidance/target geometry_msgs/Vector3 "x: 30.0
+y: 0.0
+z: 0.0" -1 &
+
+rostopic pub /uav1/uav_collision_avoidance/target geometry_msgs/Vector3 "x: -30.0
+y: 0.0
+z: 0.0" -1 &
+
+rostopic pub /uav2/uav_collision_avoidance/target geometry_msgs/Vector3 "x: 0.0
+y: 30.0
+z: 0.0" -1 &
+
+rostopic pub /uav3/uav_collision_avoidance/target geometry_msgs/Vector3 "x: 0.0
+y: -30.0
+z: 0.0" -1 &
